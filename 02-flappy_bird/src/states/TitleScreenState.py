@@ -16,14 +16,17 @@ from gale.text import render_text
 
 import settings
 from src.World import World
+from src.HardMode import HardMode
 
 
 class TitleScreenState(BaseState):
     def enter(self) -> None:
-        self.world = World()
+        #Por ahora, tenemos que actualizarlo
+        self.dif : HardMode = HardMode()
+        self.world = World(self.dif)
 
     def update(self, dt: float) -> None:
-        self.world.update(dt)
+        self.world.update(dt, 0)
 
     def render(self, surface: pygame.Surface) -> None:
         self.world.render(surface)
@@ -50,4 +53,4 @@ class TitleScreenState(BaseState):
 
     def on_input(self, input_id: str, input_data: InputData) -> None:
         if input_id == "confirm" and input_data.pressed:
-            self.state_machine.change("count_down")
+            self.state_machine.change("count_down", self.dif)

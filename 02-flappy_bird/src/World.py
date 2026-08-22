@@ -23,15 +23,15 @@ from src.EasyMode import EasyMode
 from src.HardMode import HardMode
 
 class World:
-    def __init__(self, generate_logs: bool = False) -> None:
+    def __init__(self, dificulty : Strategy, generate_logs: bool = False) -> None:
         self.generate_logs: bool = generate_logs
         self.background_x: float = 0.0
         self.ground_x: float = 0.0
+        self.current_limit = settings.TIME_TO_SPAWN_LOGS
         self.logs: List[LogPair] = []
         self.logs_spawn_timer: float = 0.0
         self.last_log_y: float = -settings.LOG_HEIGHT + random.randint(0, 80) + 20
-        self.log_pair_factory: Factory = Factory(LogPair)
-        self.dif : Strategy = EasyMode()
+        self.dif : Strategy = dificulty
 
     def reset(self, generate_logs: bool) -> None:
         self.generate_logs = generate_logs
@@ -45,7 +45,7 @@ class World:
     def update_scored(self, rect: pygame.Rect) -> bool:
         return any(log_pair.update_scored(rect) for log_pair in self.logs)
 
-    def update(self, dt: float) -> None:
+    def update(self, dt: float, score) -> None:
         '''if self.generate_logs:
             self.logs_spawn_timer += dt
             #Aca tendriamos que pasarle logica al strategy
@@ -60,7 +60,7 @@ class World:
                 )
                 self.last_log_y = y
                 self.logs.append(self.log_pair_factory.create(settings.VIRTUAL_WIDTH, y))'''
-        self.dif.generation(self, dt)
+        self.dif.generation(self, dt, score)
         self.background_x += -settings.BACK_SCROLL_SPEED * dt
 
         if self.background_x <= -settings.BACKGROUND_LOOPING_POINT:

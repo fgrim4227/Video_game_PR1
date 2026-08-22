@@ -8,7 +8,9 @@ from src.LogPair import LogPair
 import settings
 
 class Strategy():
-    def generation(self, world, dt):
+    def __init__(self):
+        pass
+    def generation(self, world, dt, score):
         #Logica de generacion de troncos
         pass
     def handle_input(self, input_id : str, input_data : InputData, bird):

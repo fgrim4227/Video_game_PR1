@@ -1,12 +1,16 @@
 
 import pygame
 
+from gale.factory import Factory
 from src.Strategy import Strategy
+from src.LogPair import LogPair
 import settings
 import random
 
 class EasyMode(Strategy):
-    def generation(self, world, dt):
+    def __init__(self):
+        self.log_pair_factory : Factory = Factory(LogPair)
+    def generation(self, world, dt, score):
         if world.generate_logs:
             world.logs_spawn_timer += dt
             #Aca tendriamos que pasarle logica al strategy
@@ -20,7 +24,7 @@ class EasyMode(Strategy):
                     ),
                 )
                 world.last_log_y = y
-                world.logs.append(world.log_pair_factory.create(settings.VIRTUAL_WIDTH, y))
+                world.logs.append(self.log_pair_factory.create(settings.VIRTUAL_WIDTH, y))
     def handle_input(self, input_id, input_data, bird):
         #Nada
         pass

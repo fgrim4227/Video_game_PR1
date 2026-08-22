@@ -20,6 +20,7 @@ class Bird:
         self.width: float = width
         self.height: float = height
         self.vy: float = 0.0
+        self.vx: float = 0.0
         self.jumping: bool = False
 
     def get_rect(self) -> pygame.Rect:
@@ -30,6 +31,7 @@ class Bird:
 
     def update(self, dt: float) -> None:
         self.vy += settings.GRAVITY * dt
+        self.x += self.vx * dt
 
         if self.jumping:
             settings.SOUNDS["jump"].play()

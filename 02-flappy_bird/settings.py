@@ -15,7 +15,8 @@ from pathlib import Path
 import pygame
 
 from gale import input_handler
-
+input_handler.InputHandler.set_keyboard_action(input_handler.KEY_LEFT, "left")
+input_handler.InputHandler.set_keyboard_action(input_handler.KEY_RIGHT, "right")
 input_handler.InputHandler.set_keyboard_action(input_handler.KEY_ESCAPE, "quit")
 input_handler.InputHandler.set_keyboard_action(input_handler.KEY_p, "pause")
 input_handler.InputHandler.set_keyboard_action(input_handler.KEY_RETURN, "confirm")
@@ -33,12 +34,12 @@ VIRTUAL_HEIGHT = 288
 
 BIRD_WIDTH = 39
 BIRD_HEIGHT = 28
-
+BIRD_H_SPEED = 100
 LOG_WIDTH = 70
 LOG_HEIGHT = 288
 LOGS_GAP = 90
 LOG_CRUSH_SPEED = 100
-LOG_RETREAT_SPEED = -20
+LOG_RETREAT_SPEED = 15
 GROUND_HEIGHT = 16
 
 BACKGROUND_LOOPING_POINT = 1157
