@@ -59,10 +59,14 @@ FLAPPY_TEXT_SIZE = 28
 BASE_DIR = Path(__file__).parent
 
 TEXTURES = {
-    "bird": pygame.image.load(BASE_DIR / "assets" / "graphics" / "bird.png"),
+    "bird": [pygame.image.load(BASE_DIR / "assets" / "graphics" / "bird1.png"),
+                pygame.image.load(BASE_DIR / "assets" / "graphics" / "bird2.png"),
+                pygame.image.load(BASE_DIR / "assets" / "graphics" / "bird3.png")],
     "background": pygame.image.load(BASE_DIR / "assets" / "graphics" / "background.png"),
     "ground": pygame.image.load(BASE_DIR / "assets" / "graphics" / "ground.png"),
     "log": pygame.image.load(BASE_DIR / "assets" / "graphics" / "log.png"),
+    "ghost": pygame.image.load(BASE_DIR / "assets" / "graphics" / "ghost_pw_fg.png"),
+    "ghost_bird": pygame.image.load(BASE_DIR / "assets" / "graphics" / "ghost_bird.png"),
 }
 # The top log of every pair is the same image, flipped upside down.
 TEXTURES["log_inverted"] = pygame.transform.flip(TEXTURES["log"], False, True)
@@ -72,6 +76,7 @@ SOUNDS = {
     "explosion": pygame.mixer.Sound(BASE_DIR / "assets" / "sounds" / "explosion.wav"),
     "hurt": pygame.mixer.Sound(BASE_DIR / "assets" / "sounds" / "hurt.wav"),
     "score": pygame.mixer.Sound(BASE_DIR / "assets" / "sounds" / "score.wav"),
+    "crash_logs": pygame.mixer.Sound(BASE_DIR / "assets" / "sounds" / "crash_logs.mp3"),
 }
 
 pygame.mixer.music.load(BASE_DIR / "assets" / "sounds" / "marios_way.ogg")

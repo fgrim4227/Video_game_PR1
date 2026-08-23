@@ -21,7 +21,7 @@ from src.LogPair import LogPair
 from src.Strategy import Strategy
 from src.EasyMode import EasyMode
 from src.HardMode import HardMode
-
+from src.PowerUp import PowerUp
 class World:
     def __init__(self, dificulty : Strategy, generate_logs: bool = False) -> None:
         self.generate_logs: bool = generate_logs
@@ -32,6 +32,7 @@ class World:
         self.logs_spawn_timer: float = 0.0
         self.last_log_y: float = -settings.LOG_HEIGHT + random.randint(0, 80) + 20
         self.dif : Strategy = dificulty
+        self.pw_up = []
 
     def reset(self, generate_logs: bool) -> None:
         self.generate_logs = generate_logs
@@ -44,22 +45,12 @@ class World:
 
     def update_scored(self, rect: pygame.Rect) -> bool:
         return any(log_pair.update_scored(rect) for log_pair in self.logs)
-
+    def pw_collition(self, rect: pygame.Rect) -> PowerUp:
+        for pw in self.pw_up:
+            if pw.collides(rect):
+                return pw
+        return None
     def update(self, dt: float, score) -> None:
-        '''if self.generate_logs:
-            self.logs_spawn_timer += dt
-            #Aca tendriamos que pasarle logica al strategy
-            if self.logs_spawn_timer >= settings.TIME_TO_SPAWN_LOGS:
-                self.logs_spawn_timer = 0.0
-                y = max(
-                    -settings.LOG_HEIGHT + 10,
-                    min(
-                        self.last_log_y + random.randint(-20, 20),
-                        settings.VIRTUAL_HEIGHT + 90 - settings.LOG_HEIGHT,
-                    ),
-                )
-                self.last_log_y = y
-                self.logs.append(self.log_pair_factory.create(settings.VIRTUAL_WIDTH, y))'''
         self.dif.generation(self, dt, score)
         self.background_x += -settings.BACK_SCROLL_SPEED * dt
 
@@ -70,7 +61,10 @@ class World:
 
         if self.ground_x <= -settings.VIRTUAL_WIDTH:
             self.ground_x = 0
-        #Sera que dejamos misma lista y clase hija de log paor los que se cierran
+        for pw in self.pw_up:
+            pw.update(dt)
+        self.pw_up = [pw for pw in self.pw_up if pw.x > -50]
+
         for log_pair in self.logs:
             log_pair.update(dt)
 
@@ -86,3 +80,5 @@ class World:
             settings.TEXTURES["ground"],
             (round(self.ground_x), settings.VIRTUAL_HEIGHT - settings.GROUND_HEIGHT),
         )
+        for pw in self.pw_up:
+            pw.render(surface)

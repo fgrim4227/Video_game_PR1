@@ -24,7 +24,7 @@ class CrushLogPair(LogPair):
             self.y += self.crush_vy * dt
             self.current_gap -= (self.crush_vy * 2) * dt           
             if self.current_gap <= 1:
-                #Pondriamos sonido
+                settings.SOUNDS["crash_logs"].play()
                 self.falling = False
         else:
             self.y -= self.retreat_vy * dt

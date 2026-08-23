@@ -12,7 +12,7 @@ import pygame
 
 import settings
 
-
+import math
 class Bird:
     def __init__(self, x: float, y: float, width: float, height: float) -> None:
         self.x: float = x
@@ -22,6 +22,10 @@ class Bird:
         self.vy: float = 0.0
         self.vx: float = 0.0
         self.jumping: bool = False
+        self.is_ghost: bool = False
+        self.power_up_timer = 0.0
+        self.img_indx = 0
+        self.frame_timer = 0.0
 
     def get_rect(self) -> pygame.Rect:
         return pygame.Rect(round(self.x), round(self.y), self.width, self.height)
@@ -32,7 +36,17 @@ class Bird:
     def update(self, dt: float) -> None:
         self.vy += settings.GRAVITY * dt
         self.x += self.vx * dt
-
+        self.frame_timer += dt
+        if(self.frame_timer >= 1):
+            self.img_indx = (self.img_indx + 1) % 3
+        if self.is_ghost:
+            if self.power_up_timer > 0:
+                self.power_up_timer -= dt
+            else:
+                self.is_ghost = False
+                self.power_up_timer = 0
+                pygame.mixer.music.load(settings.BASE_DIR / "assets" / "sounds" / "marios_way.ogg")
+                pygame.mixer.music.play(loops=-1)
         if self.jumping:
             settings.SOUNDS["jump"].play()
             self.vy = -settings.JUMP_TAKEOFF_SPEED
@@ -41,4 +55,11 @@ class Bird:
         self.y += self.vy * dt
 
     def render(self, surface: pygame.Surface) -> None:
-        surface.blit(settings.TEXTURES["bird"], self.get_rect())
+        if not self.is_ghost:
+            surface.blit(settings.TEXTURES["bird"][self.img_indx], self.get_rect())
+        else:
+            #surface.blit(settings.TEXTURES["ghost_bird"][self.img_indx], self.get_rect())
+            img = settings.TEXTURES["ghost_bird"].copy()
+            opacidad = 175 + 80 * math.sin(pygame.time.get_ticks() / 150)
+            img.set_alpha(int(opacidad))
+            surface.blit(img, self.get_rect())

@@ -39,11 +39,16 @@ class PlayingState(BaseState):
         self.bird.update(dt)
         self.world.update(dt, self.score)
 
-        if self.world.collides(self.bird.get_rect()):
-            settings.SOUNDS["explosion"].play()
-            settings.SOUNDS["hurt"].play()
-            self.state_machine.change("count_down", self.difficulty)
-            return
+        pw_tocado = self.world.pw_collition(self.bird.get_rect())
+        if pw_tocado:
+            pw_tocado.taken(self.bird)
+            self.world.pw_up.remove(pw_tocado)
+        if not self.bird.is_ghost:
+            if self.world.collides(self.bird.get_rect()):
+                settings.SOUNDS["explosion"].play()
+                settings.SOUNDS["hurt"].play()
+                self.state_machine.change("count_down", self.difficulty)
+                return
 
         if self.world.update_scored(self.bird.get_rect()):
             self.score += 1

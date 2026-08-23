@@ -2,6 +2,8 @@ from gale.factory import Factory
 from src.Strategy import Strategy
 from src.LogPair import LogPair
 from src.CrushLogPair import CrushLogPair
+from src.PowerUp import PowerUp
+from src.GhostPw import GhostPw
 import settings
 import random
 
@@ -9,7 +11,7 @@ class HardMode(Strategy):
     def __init__(self):
         self.log_pair_factory: Factory = Factory(LogPair)
         self.crushing_lp_factory: Factory = Factory(CrushLogPair)
-        
+        self.ghost_factory: Factory = Factory(GhostPw)
     def generation(self, world, dt, score):
         if world.generate_logs:
             world.logs_spawn_timer += dt
@@ -17,7 +19,7 @@ class HardMode(Strategy):
                 world.logs_spawn_timer = 0.0
                 
                 # 1. Definir el nuevo límite de tiempo aleatorio para el PRÓXIMO tronco
-                world.current_limit = random.uniform(1.2, 2)
+                world.current_limit = random.uniform(1.3, 2)
                 
                 # 2. Calcular la variación vertical permitida (pendiente máxima)
                 # Escalas la variación usando el tiempo para evitar huecos imposibles
@@ -39,7 +41,9 @@ class HardMode(Strategy):
                     world.logs.append(self.crushing_lp_factory.create(settings.VIRTUAL_WIDTH, y, {"log_gap": vertical_pair_gap}))
                 else:
                     world.logs.append(self.log_pair_factory.create(settings.VIRTUAL_WIDTH, y, {"log_gap": vertical_pair_gap}))
-                    
+                if random.randint(1, 100) <= 15:
+                    pw_y = y + settings.LOG_HEIGHT + (vertical_pair_gap / 2) # Aparece en el medio del gap
+                    world.pw_up.append(self.ghost_factory.create(settings.VIRTUAL_WIDTH + 30, pw_y))  
     def handle_input(self, input_id, input_data, bird):
         # Aquí irá el movimiento horizontal
         if(input_id == "left"):
