@@ -37,7 +37,11 @@ class Bird:
         self.vy += settings.GRAVITY * dt
         self.x += self.vx * dt
         self.frame_timer += dt
-        if(self.frame_timer >= 1):
+        
+        self.x = max(0, min(self.x, settings.VIRTUAL_WIDTH - self.width))
+        self.y = max(0, self.y)
+
+        if self.img_indx != 0:
             self.img_indx = (self.img_indx + 1) % 3
         if self.is_ghost:
             if self.power_up_timer > 0:
@@ -49,6 +53,7 @@ class Bird:
                 pygame.mixer.music.play(loops=-1)
         if self.jumping:
             settings.SOUNDS["jump"].play()
+            self.img_indx += 1
             self.vy = -settings.JUMP_TAKEOFF_SPEED
             self.jumping = False
 

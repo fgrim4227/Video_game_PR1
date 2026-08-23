@@ -23,9 +23,9 @@ from src.HardMode import HardMode
 from src.EasyMode import EasyMode
 from src.Strategy import Strategy
 class PlayingState(BaseState):
-    def enter(self, world: Optional[World] = None, bird : Optional[Bird] = None, score : int = 0, difficulty : Optional[Strategy] = None) -> None:
-        self.difficulty = difficulty if difficulty is not None else HardMode()
-        self.world = world if world is not None else World(difficulty)
+    def enter(self, world: Optional[World] = None, bird : Optional[Bird] = None, score : int = 0) -> None:
+        self.difficulty = world.dif
+        self.world = world if world is not None else World(world.dif)
         self.world.reset(True)
         self.bird = bird if bird is not None else Bird(
             settings.VIRTUAL_WIDTH / 2 - settings.BIRD_WIDTH / 2,
@@ -72,6 +72,4 @@ class PlayingState(BaseState):
             self.bird.jump()
         if(input_id == "pause" and input_data.pressed):
             self.state_machine.change("pause", self.world, self.bird, self.score)
-        print("Even regitsts?")
-        print(input_id)
         self.difficulty.handle_input(input_id, input_data, self.bird)

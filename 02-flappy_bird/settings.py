@@ -15,10 +15,10 @@ from pathlib import Path
 import pygame
 
 from gale import input_handler
-input_handler.InputHandler.set_keyboard_action(input_handler.KEY_LEFT, "left")
-input_handler.InputHandler.set_keyboard_action(input_handler.KEY_RIGHT, "right")
+input_handler.InputHandler.set_keyboard_action(input_handler.KEY_a, "left")
+input_handler.InputHandler.set_keyboard_action(input_handler.KEY_d, "right")
 input_handler.InputHandler.set_keyboard_action(input_handler.KEY_ESCAPE, "quit")
-input_handler.InputHandler.set_keyboard_action(input_handler.KEY_p, "pause")
+input_handler.InputHandler.set_keyboard_action(input_handler.KEY_t, "pause")
 input_handler.InputHandler.set_keyboard_action(input_handler.KEY_RETURN, "confirm")
 input_handler.InputHandler.set_mouse_click_action(input_handler.MOUSE_BUTTON_1, "jump")
 
@@ -61,6 +61,9 @@ BASE_DIR = Path(__file__).parent
 TEXTURES = {
     "bird": [pygame.image.load(BASE_DIR / "assets" / "graphics" / "bird1.png"),
                 pygame.image.load(BASE_DIR / "assets" / "graphics" / "bird2.png"),
+                pygame.image.load(BASE_DIR / "assets" / "graphics" / "bird2.png"),
+                pygame.image.load(BASE_DIR / "assets" / "graphics" / "bird3.png"),
+                pygame.image.load(BASE_DIR / "assets" / "graphics" / "bird3.png"),
                 pygame.image.load(BASE_DIR / "assets" / "graphics" / "bird3.png")],
     "background": pygame.image.load(BASE_DIR / "assets" / "graphics" / "background.png"),
     "ground": pygame.image.load(BASE_DIR / "assets" / "graphics" / "ground.png"),
@@ -91,3 +94,4 @@ FONTS = {
 
 COLOR_BACKGROUND = (0, 0, 0)
 COLOR_WHITE = (255, 255, 255)
+COLOR_HIGHLIGHT = (255, 255, 0)

@@ -19,13 +19,13 @@ class HardMode(Strategy):
                 world.logs_spawn_timer = 0.0
                 
                 # 1. Definir el nuevo límite de tiempo aleatorio para el PRÓXIMO tronco
-                world.current_limit = random.uniform(1.3, 2)
+                world.current_limit = random.uniform(1.35, 1.8)
                 
                 # 2. Calcular la variación vertical permitida (pendiente máxima)
                 # Escalas la variación usando el tiempo para evitar huecos imposibles
                 max_dy = 80 * world.current_limit 
                 vertical_pair_gap = random.randint(90, 120)
-                bottom_lim = settings.VIRTUAL_HEIGHT - vertical_pair_gap - settings.LOG_HEIGHT - settings.GROUND_HEIGHT
+                bottom_lim = settings.VIRTUAL_HEIGHT - vertical_pair_gap - settings.LOG_HEIGHT - settings.GROUND_HEIGHT - 20
                 y = max(
                     -settings.LOG_HEIGHT + 10,
                     min(
@@ -51,10 +51,8 @@ class HardMode(Strategy):
                 bird.vx = -settings.BIRD_H_SPEED
             elif(bird.vx < 0 and input_data.released):
                 bird.vx = 0
-            print("L")
         if(input_id == "right"):
             if(input_data.pressed):
                 bird.vx = settings.BIRD_H_SPEED
             elif(bird.vx > 0 and input_data.released):
                 bird.vx = 0
-            print("r")
