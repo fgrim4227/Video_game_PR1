@@ -40,6 +40,10 @@ class Bird:
         
         self.x = max(0, min(self.x, settings.VIRTUAL_WIDTH - self.width))
         self.y = max(0, self.y)
+        piso_y = settings.VIRTUAL_HEIGHT - settings.GROUND_HEIGHT - self.height
+        if self.y > piso_y:
+            self.y = piso_y
+            self.vy = 0
 
         if self.img_indx != 0:
             self.img_indx = (self.img_indx + 1) % 3
@@ -63,8 +67,8 @@ class Bird:
         if not self.is_ghost:
             surface.blit(settings.TEXTURES["bird"][self.img_indx], self.get_rect())
         else:
-            #surface.blit(settings.TEXTURES["ghost_bird"][self.img_indx], self.get_rect())
             img = settings.TEXTURES["ghost_bird"].copy()
-            opacidad = 175 + 80 * math.sin(pygame.time.get_ticks() / 150)
+            divisor = max(25, int(self.power_up_timer * 30))   
+            opacidad = 175 + 80 * math.sin(pygame.time.get_ticks() / divisor)
             img.set_alpha(int(opacidad))
             surface.blit(img, self.get_rect())

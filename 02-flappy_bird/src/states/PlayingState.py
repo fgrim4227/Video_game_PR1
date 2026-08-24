@@ -47,7 +47,7 @@ class PlayingState(BaseState):
             if self.world.collides(self.bird.get_rect()):
                 settings.SOUNDS["explosion"].play()
                 settings.SOUNDS["hurt"].play()
-                self.state_machine.change("count_down", self.difficulty)
+                self.state_machine.change("game_over", self.world, self.bird, self.difficulty)
                 return
 
         if self.world.update_scored(self.bird.get_rect()):
