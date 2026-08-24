@@ -26,6 +26,8 @@ class TitleScreenState(BaseState):
         self.dif : Strategy = Strategy()
         self.world = World(self.dif)
         self.option = 1
+        pygame.mixer.music.load(settings.BASE_DIR / "assets" / "sounds" / "marios_way.ogg")
+        pygame.mixer.music.play(loops=-1)
 
     def update(self, dt: float) -> None:
         self.world.update(dt, 0)

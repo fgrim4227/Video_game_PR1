@@ -45,6 +45,7 @@ class World:
 
     def update_scored(self, rect: pygame.Rect) -> bool:
         return any(log_pair.update_scored(rect) for log_pair in self.logs)
+    
     def pw_collition(self, rect: pygame.Rect) -> PowerUp:
         for pw in self.pw_up:
             if pw.collides(rect):
@@ -61,6 +62,7 @@ class World:
 
         if self.ground_x <= -settings.VIRTUAL_WIDTH:
             self.ground_x = 0
+        
         for pw in self.pw_up:
             pw.update(dt)
         self.pw_up = [pw for pw in self.pw_up if pw.x > -50]

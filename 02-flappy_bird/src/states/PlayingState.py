@@ -47,6 +47,8 @@ class PlayingState(BaseState):
             if self.world.collides(self.bird.get_rect()):
                 settings.SOUNDS["explosion"].play()
                 settings.SOUNDS["hurt"].play()
+                pygame.mixer.music.stop()
+                pygame.mixer.stop()
                 self.state_machine.change("game_over", self.world, self.bird, self.difficulty)
                 return
 

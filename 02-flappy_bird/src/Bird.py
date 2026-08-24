@@ -68,7 +68,7 @@ class Bird:
             surface.blit(settings.TEXTURES["bird"][self.img_indx], self.get_rect())
         else:
             img = settings.TEXTURES["ghost_bird"].copy()
-            divisor = max(25, int(self.power_up_timer * 30))   
+            divisor = max(10, int(self.power_up_timer * 30))   
             opacidad = 175 + 80 * math.sin(pygame.time.get_ticks() / divisor)
             img.set_alpha(int(opacidad))
             surface.blit(img, self.get_rect())

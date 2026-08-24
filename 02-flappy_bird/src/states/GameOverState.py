@@ -16,6 +16,7 @@ class GameOverState(BaseState):
         self.bird.vx = 0
         self.difficulty = difficulty
         self.option = 0
+        settings.SOUNDS["game_over"].play()
 
     def update(self, dt: float) -> None:
         self.bird.update(dt)
@@ -65,6 +66,8 @@ class GameOverState(BaseState):
             self.option = min(1, self.option + 1)
         if input_id == "confirm" and input_data.pressed:
             if self.option == 0:
+                pygame.mixer.music.load(settings.BASE_DIR / "assets" / "sounds" / "marios_way.ogg")
+                pygame.mixer.music.play(loops=-1)
                 self.state_machine.change("count_down", self.difficulty)
             else:
                 self.state_machine.change("title")

@@ -1,0 +1,26 @@
+# Archivos compilados de Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Entornos Virtuales
+venv/
+.venv/
+venv_win
+env/
+ENV/
+
+# Carpetas de editores de código (VS Code, PyCharm, etc.)
+.vscode/
+.idea/
+
+# Archivos del sistema operativo (Windows / macOS)
+.DS_Store
+Thumbs.db
+
+# Logs y bases de datos locales
+*.log
+*.sqlite3
+
+# Entornos de herramientas y configuraciones locales
+.env

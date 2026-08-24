@@ -35,13 +35,19 @@ VIRTUAL_HEIGHT = 288
 BIRD_WIDTH = 39
 BIRD_HEIGHT = 28
 BIRD_H_SPEED = 100
+
 LOG_WIDTH = 70
 LOG_HEIGHT = 288
 LOGS_GAP = 90
-LOG_CRUSH_SPEED = 100
-LOG_RETREAT_SPEED = 15
+LOG_CRUSH_SPEED = 95
+LOG_RETREAT_SPEED = 20
+LOG_SPAWN_LOWER_LIM = 1.35
+LOG_SPAWN_UPPER_LIM = 1.8
+LOG_GAP_LOWER_LIM = 80
+LOG_GAP_UPPER_LIM = 110
 GROUND_HEIGHT = 16
 
+POWER_UP_SIZE = 40
 BACKGROUND_LOOPING_POINT = 1157
 
 MAIN_SCROLL_SPEED = 100
@@ -52,6 +58,7 @@ JUMP_TAKEOFF_SPEED = GRAVITY / 6
 
 TIME_TO_SPAWN_LOGS = 1.5
 
+CHANCE_POWERUP = 10
 MEDIUM_TEXT_SIZE = 18
 HUGE_TEXT_SIZE = 56
 FLAPPY_TEXT_SIZE = 28
@@ -79,10 +86,10 @@ SOUNDS = {
     "explosion": pygame.mixer.Sound(BASE_DIR / "assets" / "sounds" / "explosion.wav"),
     "hurt": pygame.mixer.Sound(BASE_DIR / "assets" / "sounds" / "hurt.wav"),
     "score": pygame.mixer.Sound(BASE_DIR / "assets" / "sounds" / "score.wav"),
-    "crash_logs": pygame.mixer.Sound(BASE_DIR / "assets" / "sounds" / "crash_logs.mp3"),
+    "crash_logs": pygame.mixer.Sound(BASE_DIR / "assets" / "sounds" / "crash_logs.ogg"),
+    "game_over": pygame.mixer.Sound(BASE_DIR / "assets" / "sounds" / "game_over.ogg")
 }
 
-pygame.mixer.music.load(BASE_DIR / "assets" / "sounds" / "marios_way.ogg")
 
 FONTS = {
     "medium": pygame.font.Font(BASE_DIR / "assets" / "fonts" / "font.ttf", MEDIUM_TEXT_SIZE),

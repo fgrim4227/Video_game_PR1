@@ -13,7 +13,6 @@ class EasyMode(Strategy):
     def generation(self, world, dt, score):
         if world.generate_logs:
             world.logs_spawn_timer += dt
-            #Aca tendriamos que pasarle logica al strategy
             if world.logs_spawn_timer >= settings.TIME_TO_SPAWN_LOGS:
                 world.logs_spawn_timer = 0.0
                 y = max(

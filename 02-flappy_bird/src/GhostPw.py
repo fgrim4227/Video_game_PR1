@@ -12,7 +12,7 @@ class GhostPw(PowerUp):
         self.y = self.ogy + 15 * math.sin(self.timer * 5)
     def taken(self, bird : Bird):
         if not bird.is_ghost:
-            pygame.mixer.music.load(settings.BASE_DIR / "assets" / "sounds" / "ghost.mp3")
+            pygame.mixer.music.load(settings.BASE_DIR / "assets" / "sounds" / "ghost.ogg")
             pygame.mixer.music.play(loops=-1)
             
         bird.is_ghost = True
