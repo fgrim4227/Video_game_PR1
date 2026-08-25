@@ -126,5 +126,12 @@ class Ball:
         elif d < 0 and paddle.vx > 0 and pr.right < settings.VIRTUAL_HEIGHT:
             self.vx = 50 - 8 * d
     def stick_to_paddle(self, paddle : Paddle):
-        self.vx = paddle.vx
+        if paddle.x <= 0 and paddle.vx < 0:
+            self.vx = 0
+        elif paddle.x >= settings.VIRTUAL_WIDTH - paddle.width and paddle.vx > 0:
+            self.vx = 0
+        else:
+            self.vx = paddle.vx
+            
         self.vy = 0
+       

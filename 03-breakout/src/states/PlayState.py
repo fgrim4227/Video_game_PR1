@@ -46,8 +46,9 @@ class PlayState(BaseState):
 
     def update(self, dt: float) -> None:
         self.paddle.update(dt)
-        print(self.paddle.grab)
         for ball in self.balls:
+            if ball.vy == 0 and self.paddle.grab:
+                ball.stick_to_paddle(self.paddle)
             ball.update(dt)
             ball.solve_world_boundaries()
 
@@ -57,7 +58,7 @@ class PlayState(BaseState):
                     if(ball.vy == 0):
                         ball.unstuck(self.paddle, False)
                         ball.vy = random.randint(-180, -100)
-                        ball.vx = random.randint(-1.20, 1.20)  
+                        ball.vx = settings.PADDLE_SPEED*random.randint(-120, 120) / 100  
                     settings.SOUNDS["paddle_hit"].stop()
                     
                     settings.SOUNDS["paddle_hit"].play()
@@ -68,6 +69,7 @@ class PlayState(BaseState):
                     ball.push(self.paddle)
                 else:
                     ball.stick_to_paddle(self.paddle)
+            
             if not ball.collides(self.brickset):
                 continue
 
@@ -206,6 +208,7 @@ class PlayState(BaseState):
                         #Metodo pa que paddle dispare pelota
                         ball.unstuck(self.paddle, False)
                         ball.vy = random.randint(-180, -100)
+                        ball.vx = settings.PADDLE_SPEED*random.randint(-120, 120) / 100
         if input_id == "move_left":
             if input_data.pressed:
                 self.paddle.vx = -settings.PADDLE_SPEED
