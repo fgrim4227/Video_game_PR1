@@ -6,8 +6,8 @@ class Missile():
     def __init__(self, x : float, y : float):
         self.x = x
         self.y = y
-        self.width = 40
-        self.height = 44
+        self.width = 15
+        self.height = 16
         self.vy = -settings.POWERUP_SPEED * 2
         self.active = True
         self.texture = settings.TEXTURES["missile"]

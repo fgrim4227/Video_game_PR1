@@ -84,7 +84,8 @@ TEXTURES = {
     "spritesheet": pygame.image.load(BASE_DIR / "assets" / "graphics" / "breakout.png"),
     "hearts": pygame.image.load(BASE_DIR / "assets" / "graphics" / "hearts.png"),
     "arrows": pygame.image.load(BASE_DIR / "assets" / "graphics" / "arrows.png"),
-    "missile": pygame.image.load(BASE_DIR / "assets" / "graphics" / "missil.png")
+    "missile": pygame.image.load(BASE_DIR / "assets" / "graphics" / "missil.png"),
+    "cannon": pygame.image.load(BASE_DIR / "assets" / "graphics" / "cannon.png"),
 }
 
 FRAMES = {

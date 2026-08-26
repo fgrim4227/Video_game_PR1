@@ -40,10 +40,13 @@ class PlayState(BaseState):
             self.balls[0].vy = random.randint(-170, -100)
             settings.SOUNDS["paddle_hit"].play()
 
+        self.missiles = params.get("missiles", [])
+        if not params.get("active_strategies", False):
+            self.active_strategies = {}
+        else:
+            self.active_strategies = params["active_strategies"]
+
         self.powerups_abstract_factory = AbstractFactory("src.powerups")
-        self.missiles = []
-        
-        self.active_strategies = {}
 
     def add_strategy(self, key: str, strategy, time: float):
         strategy.activate(time)
@@ -119,7 +122,7 @@ class PlayState(BaseState):
             elif random.random() < 0.1:
                 r = brick.get_collision_rect()
                 self.powerups.append(self.powerups_abstract_factory.get_factory("MissilesBall").create(r.centerx -8, r.centery - 8))
-            elif random.random() < 0.3:
+            elif random.random() < 0.1:
                 r = brick.get_collision_rect()
                 self.powerups.append(self.powerups_abstract_factory.get_factory("SlowDownTime").create(r.centerx -8, r.centery - 8))
 
@@ -144,7 +147,7 @@ class PlayState(BaseState):
                 )
 
         for powerup in self.powerups:
-            powerup.update(dt)
+            powerup.update(ball_dt)
             if powerup.collides(self.paddle):
                 powerup.take(self)
 
@@ -183,8 +186,8 @@ class PlayState(BaseState):
             ball.render(surface)
         for powerup in self.powerups:
             powerup.render(surface)
-        for m in self.missiles:
-            m.render(surface)
+        for strat in self.active_strategies.values():
+            strat.render(surface, self)
 
         ui_x = 10 
         ui_y = 5
@@ -245,5 +248,6 @@ class PlayState(BaseState):
                 points_to_next_live=self.points_to_next_live,
                 live_factor=self.live_factor,
                 powerups=self.powerups,
-                missiles = self.missiles
+                missiles = self.missiles,
+                active_strategies = self.active_strategies
             )

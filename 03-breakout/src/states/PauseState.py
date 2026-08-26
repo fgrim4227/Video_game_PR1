@@ -19,6 +19,7 @@ class PauseState(BaseState):
         self.points_to_next_live = params["points_to_next_live"]
         self.powerups = params["powerups"]
         self.missiles = params["missiles"]
+        self.active_strategies = params["active_strategies"]
         settings.SOUNDS["pause"].play()
 
     def render(self, surface: pygame.Surface) -> None:
@@ -70,6 +71,8 @@ class PauseState(BaseState):
 
         for missil in self.missiles:
             missil.render(surface)
+        for id, strat in self.active_strategies.items():
+            strat.render(surface, self)
 
         
 
@@ -86,5 +89,7 @@ class PauseState(BaseState):
                 points_to_next_live=self.points_to_next_live,
                 live_factor=self.live_factor,
                 powerups=self.powerups,
+                missiles = self.missiles,
+                active_strategies = self.active_strategies,
                 resume=True,
             )

@@ -20,3 +20,5 @@ class PwStrategy:
 
     def on_input(self, input_id, input_data, play_state):
         pass
+    def render(self, surface, play_state):
+        pass

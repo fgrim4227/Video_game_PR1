@@ -1,6 +1,6 @@
 from src.Missile import Missile
 from src.strategys.PwStrategy import PwStrategy
-
+import settings
 class StratMissil(PwStrategy):
     def update(self, dt: float, play_state):
         if self.active:
@@ -28,5 +28,14 @@ class StratMissil(PwStrategy):
     def on_input(self, input_id, input_data, play_state):
         if input_id == "missil" and input_data.pressed:
             if len(play_state.missiles) == 0:
-                play_state.missiles.append(Missile(play_state.paddle.x, play_state.paddle.y))
-                play_state.missiles.append(Missile(play_state.paddle.x + play_state.paddle.width - 4, play_state.paddle.y))
+                play_state.missiles.append(Missile(play_state.paddle.x - 15, play_state.paddle.y))
+                play_state.missiles.append(Missile(play_state.paddle.x + play_state.paddle.width, play_state.paddle.y))
+    def render(self, surface, play_state):
+            paddle = play_state.paddle
+            
+            for missil in play_state.missiles:
+                missil.render(surface)
+            if self.timer > 0:
+                cannon_texture = settings.TEXTURES["cannon"] 
+                surface.blit(cannon_texture, (paddle.x - 16, paddle.y))
+                surface.blit(cannon_texture, (paddle.x + paddle.width, paddle.y))
