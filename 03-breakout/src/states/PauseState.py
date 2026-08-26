@@ -18,6 +18,7 @@ class PauseState(BaseState):
         self.live_factor = params["live_factor"]
         self.points_to_next_live = params["points_to_next_live"]
         self.powerups = params["powerups"]
+        self.missiles = params["missiles"]
         settings.SOUNDS["pause"].play()
 
     def render(self, surface: pygame.Surface) -> None:
@@ -61,6 +62,16 @@ class PauseState(BaseState):
             (255, 255, 255),
             center=True,
         )
+        for ball in self.balls:
+            ball.render(surface)
+
+        for power in self.powerups:
+            power.render(surface)
+
+        for missil in self.missiles:
+            missil.render(surface)
+
+        
 
     def on_input(self, input_id: str, input_data: InputData) -> None:
         if input_id == "pause" and input_data.pressed:

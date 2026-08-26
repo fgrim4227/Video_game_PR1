@@ -9,7 +9,6 @@ This file contains the class to define the Play state.
 """
 
 import random
-
 import pygame
 
 from gale.factory import AbstractFactory
@@ -19,7 +18,6 @@ from gale.text import render_text
 from src.Missile import Missile
 import settings
 import src.powerups
-
 
 class PlayState(BaseState):
     def enter(self, **params: dict):
@@ -44,44 +42,45 @@ class PlayState(BaseState):
 
         self.powerups_abstract_factory = AbstractFactory("src.powerups")
         self.missiles = []
+        
+        self.active_strategies = {}
+
+    def add_strategy(self, key: str, strategy, time: float):
+        strategy.activate(time)
+        self.active_strategies[key] = strategy
+
     def update(self, dt: float) -> None:
         self.paddle.update(dt)
-        if(self.paddle.slowing):
-            dt *= 0.2
-        for missil in self.missiles:
-            missil.update(dt)
 
-            if not missil.collides(self.brickset):
-                continue
-            brick = self.brickset.get_colliding_brick(missil.get_collision_rect())
-            score_destruction = 0
-            if brick is None:
-                continue 
-            while not brick.broken:
-                score_destruction += brick.score()
-                brick.hit()
-            self.score += score_destruction
-        self.missiles = [r for r in self.missiles if r.active]
-            
+        strategies_to_remove = []
+        for key, strat in self.active_strategies.items():
+            strat.update(dt, self)
+            if not strat.active:
+                strategies_to_remove.append(key)
+                
+        for key in strategies_to_remove:
+            del self.active_strategies[key]
+
+        ball_dt = dt
+        if "slow_time" in self.active_strategies and self.active_strategies["slow_time"].slowing:
+            ball_dt *= 0.2
+
+        has_grab = "grab_balls" in self.active_strategies
+        
         for ball in self.balls:
-            if ball.vy == 0 and self.paddle.grab:
-                ball.stick_to_paddle(self.paddle)
-            ball.update(dt)
+            current_ball_dt = dt if ball.vy == 0 else ball_dt
+            ball.update(current_ball_dt)
             ball.solve_world_boundaries()
 
-            # Check collision with the paddle
             if ball.collides(self.paddle):
-                if not (self.paddle.grab):  
-                    if(ball.vy == 0):
+                if not has_grab:  
+                    if ball.vy == 0:
                         ball.unstuck(self.paddle, False)
                         ball.vy = random.randint(-180, -100)
-                        ball.vx = settings.PADDLE_SPEED*random.randint(-120, 120) / 100  
+                        ball.vx = settings.PADDLE_SPEED * random.randint(-120, 120) / 100  
+                    
                     settings.SOUNDS["paddle_hit"].stop()
-                    
                     settings.SOUNDS["paddle_hit"].play()
-                    
-                    #Si Grab esta False
-                
                     ball.rebound(self.paddle)
                     ball.push(self.paddle)
                 else:
@@ -91,22 +90,19 @@ class PlayState(BaseState):
                 continue
 
             brick = self.brickset.get_colliding_brick(ball.get_collision_rect())
-
             if brick is None:
                 continue
-            #Cambie orden
+            
             self.score += brick.score()
             brick.hit()
             ball.rebound(brick)
 
-            # Check earn life
             if self.score >= self.points_to_next_live:
                 settings.SOUNDS["life"].play()
                 self.lives = min(3, self.lives + 1)
                 self.live_factor += 0.5
                 self.points_to_next_live += settings.LIVE_POINTS_BASE * self.live_factor
 
-            # Check growing up of the paddle
             if self.score >= self.points_to_next_grow_up:
                 settings.SOUNDS["grow_up"].play()
                 self.points_to_next_grow_up += (
@@ -114,39 +110,20 @@ class PlayState(BaseState):
                 )
                 self.paddle.inc_size()
 
-            # Chance to generate two more balls
             if random.random() < 0.1:
                 r = brick.get_collision_rect()
-                self.powerups.append(
-                    self.powerups_abstract_factory.get_factory("TwoMoreBall").create(
-                        r.centerx - 8, r.centery - 8
-                    )
-                )
-            #Chance para generar otros power ups, ademaS DEBERIA seer exclusivo
+                self.powerups.append(self.powerups_abstract_factory.get_factory("TwoMoreBall").create(r.centerx - 8, r.centery - 8))
             elif random.random() < 0.1:
                 r = brick.get_collision_rect()
-                self.powerups.append(
-                    self.powerups_abstract_factory.get_factory("GrabBalls").create(
-                        r.centerx -8, r.centery - 8
-                    )
-                )
+                self.powerups.append(self.powerups_abstract_factory.get_factory("GrabBalls").create(r.centerx -8, r.centery - 8))
             elif random.random() < 0.1:
                 r = brick.get_collision_rect()
-                self.powerups.append(
-                    self.powerups_abstract_factory.get_factory("MissilesBall").create(
-                        r.centerx -8, r.centery - 8
-                    )
-                )
-            elif random.random() < 0.1:
+                self.powerups.append(self.powerups_abstract_factory.get_factory("MissilesBall").create(r.centerx -8, r.centery - 8))
+            elif random.random() < 0.3:
                 r = brick.get_collision_rect()
-                self.powerups.append(
-                    self.powerups_abstract_factory.get_factory("SlowDownTime").create(
-                        r.centerx -8, r.centery - 8
-                    )
-                )
-        # Removing all balls that are not in play
-        self.balls = [ball for ball in self.balls if ball.active]
+                self.powerups.append(self.powerups_abstract_factory.get_factory("SlowDownTime").create(r.centerx -8, r.centery - 8))
 
+        self.balls = [ball for ball in self.balls if ball.active]
         self.brickset.update(dt)
 
         if not self.balls:
@@ -166,20 +143,14 @@ class PlayState(BaseState):
                     live_factor=self.live_factor,
                 )
 
-        # Update powerups
         for powerup in self.powerups:
             powerup.update(dt)
-
             if powerup.collides(self.paddle):
                 powerup.take(self)
 
-        # Remove powerups that are not in play
         self.powerups = [p for p in self.powerups if p.active]
 
-        # Check victory
-        if self.brickset.size == 1 and next(
-            (True for _, b in self.brickset.bricks.items() if b.broken), False
-        ):
+        if self.brickset.size == 1 and next((True for _, b in self.brickset.bricks.items() if b.broken), False):
             self.state_machine.change(
                 "victory",
                 lives=self.lives,
@@ -193,64 +164,65 @@ class PlayState(BaseState):
 
     def render(self, surface: pygame.Surface) -> None:
         heart_x = settings.VIRTUAL_WIDTH - 120
-
         i = 0
-        # Draw filled hearts
         while i < self.lives:
-            surface.blit(
-                settings.TEXTURES["hearts"], (heart_x, 5), settings.FRAMES["hearts"][0]
-            )
+            surface.blit(settings.TEXTURES["hearts"], (heart_x, 5), settings.FRAMES["hearts"][0])
             heart_x += 11
             i += 1
-
-        # Draw empty hearts
         while i < 3:
-            surface.blit(
-                settings.TEXTURES["hearts"], (heart_x, 5), settings.FRAMES["hearts"][1]
-            )
+            surface.blit(settings.TEXTURES["hearts"], (heart_x, 5), settings.FRAMES["hearts"][1])
             heart_x += 11
             i += 1
 
-        render_text(
-            surface,
-            f"Score: {self.score}",
-            settings.FONTS["tiny"],
-            settings.VIRTUAL_WIDTH - 80,
-            5,
-            (255, 255, 255),
-        )
-
+        render_text(surface, f"Score: {self.score}", settings.FONTS["tiny"], settings.VIRTUAL_WIDTH - 80, 5, (255, 255, 255))
+        
         self.brickset.render(surface)
-
         self.paddle.render(surface)
 
         for ball in self.balls:
             ball.render(surface)
-
         for powerup in self.powerups:
             powerup.render(surface)
         for m in self.missiles:
             m.render(surface)
 
+        ui_x = 10 
+        ui_y = 5
+        icon_map = {"grab_balls": 2, "missil": 3, "slow_time": 4}
+
+        for key, strat in self.active_strategies.items():
+            if key not in icon_map:
+                continue 
+            if(key == "slow_time"):
+                if 0 <= strat.window_timer <= 2.0 and strat.can_slow:
+                    if (pygame.time.get_ticks() // 200) % 2 == 0:
+                            continue
+                elif(strat.slowing and 0 <= strat.timer <= 2):
+                    if (pygame.time.get_ticks() // 200) % 2 == 0:
+                            continue
+            elif strat.timer < 2.0:
+                if (pygame.time.get_ticks() // 200) % 2 == 0:
+                    continue 
+            surface.blit(
+                settings.TEXTURES["spritesheet"],
+                (ui_x, ui_y),
+                settings.FRAMES["powerups"][icon_map[key]]
+            )
+            if hasattr(strat, 'max_time') and strat.max_time > 0:
+                if hasattr(strat, "window_timer") and strat.can_slow:
+                    ratio = max(0, strat.window_timer / strat.max_time)
+                else:
+                    ratio = max(0, strat.timer / strat.max_time)
+                bar_width = int(16 * ratio)
+                
+                pygame.draw.rect(surface, (255, 50, 50), (ui_x, ui_y + 18, bar_width, 3))
+                pygame.draw.rect(surface, (255, 255, 255), (ui_x, ui_y + 18, 16, 3), 1)
+
+            ui_x += 24
+
     def on_input(self, input_id: str, input_data: InputData) -> None:
-        if(self.paddle.grab):
-            if(input_id == "shoot" and input_data.pressed):
-                for ball in self.balls:
-                    if(ball.vy == 0):
-                        #Metodo pa que paddle dispare pelota
-                        ball.unstuck(self.paddle, False)
-                        ball.vy = random.randint(-180, -100)
-                        ball.vx = self.paddle.vx + self.paddle.vx * random.randint(-20, 20) / 100
-        if(self.paddle.missile):
-            if(input_id == "missil" and input_data.pressed):
-                if len(self.missiles) == 0:
-                    self.missiles.append(Missile(self.paddle.x, self.paddle.y))
-                    self.missiles.append(Missile(self.paddle.x + self.paddle.width - 4, self.paddle.y))
-        if(self.paddle.can_slow):
-            if(input_id == "slow_t" and input_data.pressed):
-                self.paddle.slowing = True
-                self.paddle.can_slow = False
-                self.paddle.slow_time = 5
+        for strat in self.active_strategies.values():
+            strat.on_input(input_id, input_data, self)
         if input_id == "move_left":
             if input_data.pressed:
                 self.paddle.vx = -settings.PADDLE_SPEED
@@ -273,5 +245,5 @@ class PlayState(BaseState):
                 points_to_next_live=self.points_to_next_live,
                 live_factor=self.live_factor,
                 powerups=self.powerups,
+                missiles = self.missiles
             )
-        

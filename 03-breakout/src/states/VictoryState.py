@@ -24,6 +24,7 @@ class VictoryState(BaseState):
         self.level = params["level"]
         self.score = params["score"]
         self.paddle = params["paddle"]
+        self.paddle.vx = 0
         self.balls = params["balls"]
         self.live_factor = params["live_factor"]
         self.points_to_next_live = params["points_to_next_live"]
