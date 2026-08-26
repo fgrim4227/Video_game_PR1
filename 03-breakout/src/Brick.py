@@ -49,7 +49,8 @@ class Brick:
         self.particle_system.set_life_time(0.2, 0.4)
         self.particle_system.set_linear_acceleration(-0.3, 0.5, 0.3, 1)
         self.particle_system.set_area_spread(4, 7)
-
+    def broken(self) -> bool:
+        return self.broken
     def hit(self) -> None:
         settings.SOUNDS["brick_hit_2"].stop()
         settings.SOUNDS["brick_hit_2"].play()

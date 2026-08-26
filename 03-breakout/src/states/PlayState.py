@@ -16,7 +16,7 @@ from gale.factory import AbstractFactory
 from gale.state import BaseState
 from gale.input_handler import InputData
 from gale.text import render_text
-
+from src.Missile import Missile
 import settings
 import src.powerups
 
@@ -43,9 +43,26 @@ class PlayState(BaseState):
             settings.SOUNDS["paddle_hit"].play()
 
         self.powerups_abstract_factory = AbstractFactory("src.powerups")
-
+        self.missiles = []
     def update(self, dt: float) -> None:
         self.paddle.update(dt)
+        if(self.paddle.slowing):
+            dt *= 0.2
+        for missil in self.missiles:
+            missil.update(dt)
+
+            if not missil.collides(self.brickset):
+                continue
+            brick = self.brickset.get_colliding_brick(missil.get_collision_rect())
+            score_destruction = 0
+            if brick is None:
+                continue 
+            while not brick.broken:
+                score_destruction += brick.score()
+                brick.hit()
+            self.score += score_destruction
+        self.missiles = [r for r in self.missiles if r.active]
+            
         for ball in self.balls:
             if ball.vy == 0 and self.paddle.grab:
                 ball.stick_to_paddle(self.paddle)
@@ -106,14 +123,27 @@ class PlayState(BaseState):
                     )
                 )
             #Chance para generar otros power ups, ademaS DEBERIA seer exclusivo
-            elif random.random() < 0.5:
+            elif random.random() < 0.1:
                 r = brick.get_collision_rect()
                 self.powerups.append(
                     self.powerups_abstract_factory.get_factory("GrabBalls").create(
                         r.centerx -8, r.centery - 8
                     )
                 )
-
+            elif random.random() < 0.1:
+                r = brick.get_collision_rect()
+                self.powerups.append(
+                    self.powerups_abstract_factory.get_factory("MissilesBall").create(
+                        r.centerx -8, r.centery - 8
+                    )
+                )
+            elif random.random() < 0.1:
+                r = brick.get_collision_rect()
+                self.powerups.append(
+                    self.powerups_abstract_factory.get_factory("SlowDownTime").create(
+                        r.centerx -8, r.centery - 8
+                    )
+                )
         # Removing all balls that are not in play
         self.balls = [ball for ball in self.balls if ball.active]
 
@@ -199,6 +229,8 @@ class PlayState(BaseState):
 
         for powerup in self.powerups:
             powerup.render(surface)
+        for m in self.missiles:
+            m.render(surface)
 
     def on_input(self, input_id: str, input_data: InputData) -> None:
         if(self.paddle.grab):
@@ -208,7 +240,17 @@ class PlayState(BaseState):
                         #Metodo pa que paddle dispare pelota
                         ball.unstuck(self.paddle, False)
                         ball.vy = random.randint(-180, -100)
-                        ball.vx = settings.PADDLE_SPEED*random.randint(-120, 120) / 100
+                        ball.vx = self.paddle.vx + self.paddle.vx * random.randint(-20, 20) / 100
+        if(self.paddle.missile):
+            if(input_id == "missil" and input_data.pressed):
+                if len(self.missiles) == 0:
+                    self.missiles.append(Missile(self.paddle.x, self.paddle.y))
+                    self.missiles.append(Missile(self.paddle.x + self.paddle.width - 4, self.paddle.y))
+        if(self.paddle.can_slow):
+            if(input_id == "slow_t" and input_data.pressed):
+                self.paddle.slowing = True
+                self.paddle.can_slow = False
+                self.paddle.slow_time = 5
         if input_id == "move_left":
             if input_data.pressed:
                 self.paddle.vx = -settings.PADDLE_SPEED

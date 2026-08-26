@@ -51,7 +51,7 @@ class Brickset:
             return brick
 
         # return top-right
-        brick = self.get_brick(bottom_row, left_col)
+        brick = self.get_brick(bottom_row, right_col)
         if brick is not None and not brick.broken:
             return brick
 

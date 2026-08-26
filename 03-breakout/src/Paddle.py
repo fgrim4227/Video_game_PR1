@@ -34,7 +34,13 @@ class Paddle:
 
         self.grab = False
         self.missile = False
-        self.pw_time = 0
+        self.can_slow = False
+        self.slowing = False
+        self.grab_time = 0
+        self.missil_time = 0
+        self.slow_window = 0
+        self.slow_time = 0
+
 
     def resize(self, size: int) -> None:
         self.size = size
@@ -57,14 +63,33 @@ class Paddle:
         else:
             self.x = min(settings.VIRTUAL_WIDTH - self.width, next_x)
         #Pudieramos hacer metodo que recorra booleanos
-        if((self.grab or self.missile) and self.pw_time >= 0):
-            self.pw_time -= dt
+        if((self.grab) and self.grab_time >= 0):
+            self.grab_time -= dt
         else:
-            self.pw_time = 0
+            self.grab_time = 0
             self.grab = False
-
+        if(self.missile and self.missil_time >= 0):
+            self.missil_time -= dt
+        else:
+            self.missil_time = 0
+            self.missile = False
+            
+        if(self.slow_window > 0 and self.can_slow):
+            self.slow_window -= dt
+        else:
+            self.slow_window = 0
+            self.can_slow = False
+            
+        if(self.slowing and self.slow_time >= 0):
+            self.slow_time -= dt
+        else:
+            self.slow_time = 0
+            self.slowing = False
     def render(self, surface: pygame.Surface) -> None:
         surface.blit(self.texture, (self.x, self.y), self.frames[self.skin][self.size])
     def activate_grab(self):
         self.grab = True
-        self.pw_time = 4
+        self.grab_time = 4
+    def activate_missil(self):
+        self.missile = True
+        self.missil_time = 15

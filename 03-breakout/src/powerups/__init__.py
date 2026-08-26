@@ -11,4 +11,6 @@ This module contains all of the power ups.
 from src.powerups.PowerUp import PowerUp
 from src.powerups.TwoMoreBall import TwoMoreBall
 from src.powerups.GrabBalls import GrabBalls
-(PowerUp, TwoMoreBall, GrabBalls)
+from src.powerups.MissilesBall import MissilesBall
+from src.powerups.SlowDownTime import SlowDownTime
+(PowerUp, TwoMoreBall, GrabBalls, MissilesBall, SlowDownTime)

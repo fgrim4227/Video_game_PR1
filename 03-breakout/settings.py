@@ -32,7 +32,8 @@ input_handler.InputHandler.set_keyboard_action(input_handler.KEY_DOWN, "move_dow
 input_handler.InputHandler.set_keyboard_action(input_handler.KEY_LEFT, "move_left")
 input_handler.InputHandler.set_keyboard_action(input_handler.KEY_SPACE, "pause")
 input_handler.InputHandler.set_keyboard_action(input_handler.KEY_s, "shoot")
-
+input_handler.InputHandler.set_keyboard_action(input_handler.KEY_d, "missil")
+input_handler.InputHandler.set_keyboard_action(input_handler.KEY_f, "slow_t")
 TITLE = "Breakout"
 
 # Size of our actual window
@@ -83,6 +84,7 @@ TEXTURES = {
     "spritesheet": pygame.image.load(BASE_DIR / "assets" / "graphics" / "breakout.png"),
     "hearts": pygame.image.load(BASE_DIR / "assets" / "graphics" / "hearts.png"),
     "arrows": pygame.image.load(BASE_DIR / "assets" / "graphics" / "arrows.png"),
+    "missile": pygame.image.load(BASE_DIR / "assets" / "graphics" / "missil.png")
 }
 
 FRAMES = {
