@@ -8,5 +8,5 @@ class GrabBalls(PowerUp):
         self.frame = 2
         
     def take(self, play_state: TypeVar("PlayState")) -> None:
-        play_state.add_strategy("grab_balls", StratGrabBalls(), 6) 
+        play_state.add_strategy("grab_balls", StratGrabBalls(), 7) 
         self.active = False

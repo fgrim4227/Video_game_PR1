@@ -3,6 +3,9 @@ import settings
 from src.strategys.PwStrategy import PwStrategy
 
 class StratGrabBalls(PwStrategy):
+    def __init__(self):
+        super().__init__()
+        self.icon_frame = 2
     def effect(self, dt: float, play_state):
         for ball in play_state.balls:
             if ball.vy == 0:

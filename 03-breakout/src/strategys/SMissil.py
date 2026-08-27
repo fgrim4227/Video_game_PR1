@@ -2,6 +2,9 @@ from src.Missile import Missile
 from src.strategys.PwStrategy import PwStrategy
 import settings
 class StratMissil(PwStrategy):
+    def __init__(self):
+            super().__init__()
+            self.icon_frame = 3
     def update(self, dt: float, play_state):
         if self.active:
             self.timer -= dt         

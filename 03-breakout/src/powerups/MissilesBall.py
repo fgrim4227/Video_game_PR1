@@ -8,5 +8,5 @@ class MissilesBall(PowerUp):
         self.frame = 3
         
     def take(self, play_state: TypeVar("PlayState")) -> None:
-        play_state.add_strategy("missil", StratMissil(), 6)
+        play_state.add_strategy("missil", StratMissil(), 8)
         self.active = False

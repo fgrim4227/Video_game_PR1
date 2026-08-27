@@ -66,7 +66,7 @@ class PlayState(BaseState):
 
         ball_dt = dt
         if "slow_time" in self.active_strategies and self.active_strategies["slow_time"].slowing:
-            ball_dt *= 0.2
+            ball_dt *= 0.1
 
         has_grab = "grab_balls" in self.active_strategies
         
@@ -153,7 +153,7 @@ class PlayState(BaseState):
 
         self.powerups = [p for p in self.powerups if p.active]
 
-        if self.brickset.size == 1 and next((True for _, b in self.brickset.bricks.items() if b.broken), False):
+        if (self.brickset.size == 1 and next((True for _, b in self.brickset.bricks.items() if b.broken), False)) or self.brickset.size == 0:
             self.state_machine.change(
                 "victory",
                 lives=self.lives,
@@ -191,37 +191,8 @@ class PlayState(BaseState):
 
         ui_x = 10 
         ui_y = 5
-        icon_map = {"grab_balls": 2, "missil": 3, "slow_time": 4}
-
-        for key, strat in self.active_strategies.items():
-            if key not in icon_map:
-                continue 
-            if(key == "slow_time"):
-                if 0 <= strat.window_timer <= 2.0 and strat.can_slow:
-                    if (pygame.time.get_ticks() // 200) % 2 == 0:
-                            continue
-                elif(strat.slowing and 0 <= strat.timer <= 2):
-                    if (pygame.time.get_ticks() // 200) % 2 == 0:
-                            continue
-            elif strat.timer < 2.0:
-                if (pygame.time.get_ticks() // 200) % 2 == 0:
-                    continue 
-            surface.blit(
-                settings.TEXTURES["spritesheet"],
-                (ui_x, ui_y),
-                settings.FRAMES["powerups"][icon_map[key]]
-            )
-            if hasattr(strat, 'max_time') and strat.max_time > 0:
-                if hasattr(strat, "window_timer") and strat.can_slow:
-                    ratio = max(0, strat.window_timer / strat.max_time)
-                else:
-                    ratio = max(0, strat.timer / strat.max_time)
-                bar_width = int(16 * ratio)
-                
-                pygame.draw.rect(surface, (255, 50, 50), (ui_x, ui_y + 18, bar_width, 3))
-                pygame.draw.rect(surface, (255, 255, 255), (ui_x, ui_y + 18, 16, 3), 1)
-
-            ui_x += 24
+        for strat in self.active_strategies.values():
+            ui_x = strat.render_ui(surface, ui_x, ui_y)
 
     def on_input(self, input_id: str, input_data: InputData) -> None:
         for strat in self.active_strategies.values():

@@ -8,5 +8,5 @@ class SlowDownTime(PowerUp):
         self.frame = 4
 
     def take(self, play_state: TypeVar("PlayState")) -> None:
-        play_state.add_strategy("slow_time", StratSlowTime(), 7)
+        play_state.add_strategy("slow_time", StratSlowTime(), 30)
         self.active = False

@@ -53,7 +53,18 @@ class PauseState(BaseState):
 
         self.brickset.render(surface)
         self.paddle.render(surface)
+        for ball in self.balls:
+                    ball.render(surface)
+        
+        for power in self.powerups:
+            power.render(surface)
 
+        for missil in self.missiles:
+            missil.render(surface)
+        
+        for id, strat in self.active_strategies.items():
+            strat.render(surface, self)
+        
         render_text(
             surface,
             "Pause",
@@ -63,16 +74,10 @@ class PauseState(BaseState):
             (255, 255, 255),
             center=True,
         )
-        for ball in self.balls:
-            ball.render(surface)
-
-        for power in self.powerups:
-            power.render(surface)
-
-        for missil in self.missiles:
-            missil.render(surface)
-        for id, strat in self.active_strategies.items():
-            strat.render(surface, self)
+        ui_x = 10 
+        ui_y = 5
+        for strat in self.active_strategies.values():
+            ui_x = strat.render_ui(surface, ui_x, ui_y)
 
         
 

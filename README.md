@@ -104,22 +104,52 @@ python main.py
 
 * **Confirmar:** `Enter`.
 
-
-
-**Flappy Bird:**
-
-* **Volar / Saltar:** Clic Izquierdo del Ratón
-* **Pausa:** Tecla `P`
-* **Modo Difícil (Movimiento Horizontal):** Teclas `A` y `D`
-
+---
 **Pong:**
 
 * **Jugador 1:** `W` (Subir) y `S` (Bajar).
 
 
 * **Jugador 2:** `Flecha Arriba` y `Flecha Abajo`.
+---
+**Flappy Bird:**
 
+* **Volar / Saltar:** Clic Izquierdo del Ratón
+* **Pausa:** Tecla `P`
+* **Modo Difícil (Movimiento Horizontal):** Teclas `A` y `D`
+---
+**Breakout:**
+**Flechas Izquierda / Derecha:** Mover la paleta.
+* **Enter:** Iniciar el juego / Confirmar selecciones / Sacar la pelota.
+* **G:** Pausar / Reanudar el juego.
+* **Espacio:** Disparar la pelota atrapada (Power-Up: Captura de Pelota).
+* **D:** Disparar misiles (Power-Up: Cañones).
+* **F:** Activar la cámara lenta (Power-Up: Manipulación Temporal).
+* **Escape:** Salir del juego.
 
+---
+
+## ✨ Sistema de Power-Ups de BreakOut
+
+Durante el juego, al destruir ladrillos, existe la posibilidad de que caigan diversos ítems. La interfaz en la esquina superior izquierda te indicará visualmente cuáles tienes activos y cuánto tiempo te queda de uso mediante una barra de progreso.
+
+### 1. Two More Balls (Clásico)
+Añade instantáneamente dos pelotas adicionales a la partida, con trayectorias y velocidades aleatorias, facilitando la limpieza rápida de la pantalla. No tiene duración límite, las pelotas extra permanecen hasta que caen al vacío.
+
+### 2. Captura de Pelota (Grab Balls)
+Permite que la paleta adquiera propiedades magnéticas durante 7 segundos. 
+* **Efecto:** Al impactar contra la paleta, la pelota no rebota, sino que queda adherida y copia el movimiento horizontal del jugador.
+* **Uso:** Presiona la tecla **Espacio** para volver a lanzar la pelota con un nuevo ángulo cuando consideres oportuno, toma en cuenta tu dirreccion y velocidad.
+
+### 3. Cañones Perforadores (Missiles)
+Equipa la paleta con un par de cañones en los extremos durante 8 segundos.
+* **Efecto:** Al presionar la tecla **D**, se disparan dos misiles verticales simultáneos. Estos proyectiles destruyen todos los bloques que encuentren en su trayectoria de forma consecutiva hasta impactar con el techo.
+* **Regla:** Solo puede haber un par de misiles activos en pantalla a la vez.
+
+### 4. Manipulación Temporal ⏳ (Slow Time) - *[Power-Up Adicional]*
+Un ítem táctico de doble fase que permite ralentizar el tiempo.
+* **Fase 1 (Reserva):** Al recoger el ítem, tendrás una ventana de 30 segundos donde el poder estará "guardado" y listo para usarse.
+* **Fase 2 (Ejecución):** Al presionar la tecla **F** dentro de esa ventana de tiempo, se activa una cámara lenta de 6 segundos. La velocidad de las pelotas se reduce drásticamente, permitiendo al jugador alcanzar ángulos difíciles o reaccionar a situaciones de peligro, mientras que la paleta mantiene su velocidad normal de respuesta.
 
 **General:**
 
