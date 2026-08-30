@@ -15,6 +15,8 @@ import pygame
 import random
 
 import settings
+from gale.timer import Timer
+from gale.text import render_text
 from src.Tile import Tile
 
 
@@ -24,6 +26,14 @@ class Board:
         self.y = y
         self.matches: List[List[Tile]] = []
         self.tiles: List[List[Tile]] = []
+        self.test_case = 0 
+
+        self.test_cases_funcs = {
+            0: self._generate_normal,
+            1: self._generate_case_1,
+            2: self._generate_case_2,
+            3: self._generate_case_3
+        }
         self._initialize_tiles()
 
     def render(self, surface: pygame.Surface) -> None:
@@ -44,43 +54,95 @@ class Board:
             and self.tiles[i][j - 1].color == color
             and self.tiles[i][j - 2].color == color
         )
-
+    
+    def get_available_powerup(self) -> Optional[Any]:
+        power_ups = []
+        for i in range(settings.BOARD_HEIGHT):
+            for j in range(settings.BOARD_WIDTH):
+                tile = self.tiles[i][j]
+                if tile is not None and hasattr(tile, "activate"):
+                    power_ups.append(tile)
+        if len(power_ups) == 0:
+            return None
+        else:
+            return power_ups
+    
     def _initialize_tiles(self) -> None:
-        self.tiles = [
-            [None for _ in range(settings.BOARD_WIDTH)]
-            for _ in range(settings.BOARD_HEIGHT)
-        ]
-        for i in range(settings.BOARD_HEIGHT):
-            for j in range(settings.BOARD_WIDTH):
-                color = random.randint(0, settings.NUM_COLORS - 1)
-                while self._is_match_generated(i, j, color):
-                    color = random.randint(0, settings.NUM_COLORS - 1)
+        self.test_cases_funcs[0]()
 
-                self.tiles[i][j] = Tile(
-                    i, j, color, random.randint(0, settings.NUM_VARIETIES - 1)
-                )
     def reset(self):
-        self.tiles: List[List[Tile]] = []
-        self.tiles = [
-                    [None for _ in range(settings.BOARD_WIDTH)]
-                    for _ in range(settings.BOARD_HEIGHT)
-                ]
+        self.matches = []
+        self.tiles = []
+        self.test_cases_funcs[0]()
+    
+    def change_state(self):
+        self.matches = []
+        self.tiles = []
+        self.test_case = (self.test_case + 1) % 4
+        self.test_cases_funcs[self.test_case]()
+
+    def _generate_normal(self) -> None:
+        self.tiles = [[None for _ in range(settings.BOARD_WIDTH)] for _ in range(settings.BOARD_HEIGHT)]
         for i in range(settings.BOARD_HEIGHT):
             for j in range(settings.BOARD_WIDTH):
                 color = random.randint(0, settings.NUM_COLORS - 1)
                 while self._is_match_generated(i, j, color):
                     color = random.randint(0, settings.NUM_COLORS - 1)
+                self.tiles[i][j] = Tile(i, j, color, random.randint(0, settings.NUM_VARIETIES - 1))
 
-                self.tiles[i][j] = Tile(
-                    i, j, color, random.randint(0, settings.NUM_VARIETIES - 1)
-                )
+    def _generate_case_1(self) -> None:
+        self._generate_normal()
+        self.tiles[0][0].color = 0
+        self.tiles[0][1].color = 0
+        self.tiles[0][2].color = 1
+        self.tiles[1][2].color = 0
+
+    def _generate_case_2(self) -> None:
+        self._generate_normal()
+        from src.PowerUp import Powerup
+        color_compartido = 5
+        self.tiles[1][2] = Powerup(1, 2, color_compartido, 0, 4)
+        self.tiles[1][5] = Powerup(1, 5, color_compartido, 0, 5)
+
+    def _generate_case_3(self) -> None:
+        from src.PowerUp import Powerup
+        self.tiles = [[None for _ in range(settings.BOARD_WIDTH)] for _ in range(settings.BOARD_HEIGHT)]
+
+        for i in range(settings.BOARD_HEIGHT):
+            for j in range(settings.BOARD_WIDTH):
+                if i % 2 == 0:
+                    color = 0 if j % 2 == 0 else 1
+                else:
+                    color = 2 if j % 2 == 0 else 3
+                self.tiles[i][j] = Tile(i, j, color, 0)
+
+        self.tiles[2][2] = Powerup(2, 2, 4, 0, 4)
+        self.tiles[5][5] = Powerup(5, 5, 5, 0, 5)
+    def get_possible_move(self) -> Optional[Tuple[int, int]]:
+        for i in range(settings.BOARD_HEIGHT):
+            for j in range(settings.BOARD_WIDTH):
+
+                if j < settings.BOARD_WIDTH - 1:
+                    self.tiles[i][j], self.tiles[i][j+1] = self.tiles[i][j+1], self.tiles[i][j]
+                    has_match = self.has_match_at(i, j) or self.has_match_at(i, j+1)
+                    self.tiles[i][j], self.tiles[i][j+1] = self.tiles[i][j+1], self.tiles[i][j]
+                    if has_match:
+                        return (i, j)
+
+                if i < settings.BOARD_HEIGHT - 1:
+                    self.tiles[i][j], self.tiles[i+1][j] = self.tiles[i+1][j], self.tiles[i][j]
+                    has_match = self.has_match_at(i, j) or self.has_match_at(i+1, j)
+                    self.tiles[i][j], self.tiles[i+1][j] = self.tiles[i+1][j], self.tiles[i][j]
+                    if has_match:
+                        return (i, j)
+                        
+        return None
     def has_match_at(self, i: int, j: int) -> bool:
         if self.tiles[i][j] is None:
             return False
             
         color = self.tiles[i][j].color
-        
-        # Revisar horizontal (izquierda y derecha)
+
         h_count = 1
         for col in range(j - 1, -1, -1):
             if self.tiles[i][col] and self.tiles[i][col].color == color:
@@ -94,8 +156,7 @@ class Board:
             
         if h_count >= 3:
             return True
-            
-        # Revisar vertical (arriba y abajo)
+
         v_count = 1
         for row in range(i - 1, -1, -1):
             if self.tiles[row][j] and self.tiles[row][j].color == color:
@@ -112,30 +173,22 @@ class Board:
     def has_possible_moves(self) -> bool:
         for i in range(settings.BOARD_HEIGHT):
             for j in range(settings.BOARD_WIDTH):
-                
-                # Probar intercambio horizontal
+
                 if j < settings.BOARD_WIDTH - 1:
-                    # Swap temporal
                     self.tiles[i][j], self.tiles[i][j+1] = self.tiles[i][j+1], self.tiles[i][j]
-                    
-                    # Validar si alguna de las dos posiciones ahora forma match
+
                     has_match = self.has_match_at(i, j) or self.has_match_at(i, j+1)
-                    
-                    # Revertir swap
+
                     self.tiles[i][j], self.tiles[i][j+1] = self.tiles[i][j+1], self.tiles[i][j]
                     
                     if has_match:
                         return True
-                        
-                # Probar intercambio vertical
+
                 if i < settings.BOARD_HEIGHT - 1:
-                    # Swap temporal
                     self.tiles[i][j], self.tiles[i+1][j] = self.tiles[i+1][j], self.tiles[i][j]
-                    
-                    # Validar si alguna de las dos posiciones ahora forma match
+
                     has_match = self.has_match_at(i, j) or self.has_match_at(i+1, j)
-                    
-                    # Revertir swap
+
                     self.tiles[i][j], self.tiles[i+1][j] = self.tiles[i+1][j], self.tiles[i][j]
                     
                     if has_match:

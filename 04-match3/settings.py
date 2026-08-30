@@ -15,7 +15,7 @@ from pathlib import Path
 import pygame
 
 from gale import input_handler
-
+from gale.frames import generate_frames
 from src.frames_utility import generate_tile_frames
 
 input_handler.InputHandler.set_keyboard_action(input_handler.KEY_ESCAPE, "quit")
@@ -54,10 +54,12 @@ TEXTURES = {
         BASE_DIR / "assets" / "graphics" / "background.png"
     ),
     "tiles": pygame.image.load(BASE_DIR / "assets" / "graphics" / "match3.png"),
+    "power-ups": pygame.image.load(BASE_DIR / "assets" / "graphics" / "power_ups.png"),
 }
 
-FRAMES = {"tiles": generate_tile_frames(TEXTURES["tiles"])}
-
+FRAMES = {"tiles": generate_tile_frames(TEXTURES["tiles"]),
+          "power-ups": generate_frames(TEXTURES["power-ups"], TILE_SIZE, TILE_SIZE)}
+print(len(FRAMES["power-ups"]))
 SOUNDS = {
     "clock": pygame.mixer.Sound(BASE_DIR / "assets" / "sounds" / "clock.wav"),
     "error": pygame.mixer.Sound(BASE_DIR / "assets" / "sounds" / "error.wav"),
@@ -75,3 +77,4 @@ FONTS = {
     "large": pygame.font.Font(BASE_DIR / "assets" / "fonts" / "font.ttf", 48),
     "huge": pygame.font.Font(BASE_DIR / "assets" / "fonts" / "font.ttf", 64),
 }
+

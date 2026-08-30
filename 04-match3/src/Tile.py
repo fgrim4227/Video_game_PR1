@@ -24,6 +24,7 @@ class Tile:
         self.alpha_surface = pygame.Surface(
             (settings.TILE_SIZE, settings.TILE_SIZE), pygame.SRCALPHA
         )
+        self.moved = False
 
     def render(self, surface: pygame.Surface, offset_x: int, offset_y: int) -> None:
         self.alpha_surface.blit(

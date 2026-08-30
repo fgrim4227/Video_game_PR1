@@ -29,6 +29,7 @@ class Match3(Game):
                 "game-over": states.GameOverState,
             }
         )
+        pygame.mixer.music.set_volume(0)
         self.state_machine.change("start")
         self.background_x = 0
 
