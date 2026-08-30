@@ -154,3 +154,24 @@ Un ítem táctico de doble fase que permite ralentizar el tiempo.
 **General:**
 
 * **Cerrar cualquier juego:** Tecla `Esc`.
+---
+**Match 3:**
+* **Intercambiar Piezas (Drag & Drop):** Mantén presionado el Clic Izquierdo sobre una pieza y arrástrala hacia una posición adyacente para intercambiarla, el intercambio sera valido si es un match de al menos 3 tiles, sino la tile se devolvera a su posicion original con el sonido de error.
+* **Activar Power-Up Manualmente:** Clic Izquierdo directamente sobre la pieza especial sin arrastrarla.
+* **Alternar Casos de Prueba (si se descomenta el manejo del input):** Tecla `R` para rotar entre los escenarios de demostración (Tablero Normal, Match-4, Reacción en Cadena, Sin Movimientos y Explosión Masiva).
+---
+---
+
+## Mecánicas y Power-Ups de Match 3
+
+### 1. Sistema de Asistencia y Rescate
+* **Pistas Visuales (Hint):** Si el jugador pasa 10 segundos sin realizar un movimiento o sin dar click, un recuadro dorado titilante resaltará la posición exacta de un movimiento válido.
+* **Auto-Activación y Reinicio:** Si el tablero se queda sin movimientos posibles, el sistema buscará los Power-Ups que hayan quedado en el tablero y los detonará en cadena para intentar generar nuevas combinaciones. Si tras la explosión sigue sin haber movimientos, la pantalla mostrará una alerta y el tablero se reiniciará automáticamente (tambien pausara el temporizador mientras se esta en la transicion para no descontar tiempo injustamente).
+
+### 2. Limpia-Líneas (Match-4)
+* **Generación:** Se crea automáticamente al lograr una coincidencia de exactamente 4 baldosas en la casilla de la pieza movida por el player para el match o si fue por caida en cualquiera de las casillas usadas para hacer el match.
+* **Efecto:** Al activarse mediante un clic directo o al ser combinado con su color, dispara una explosión en cruz que destruye por completo toda su fila y su columna activando power ups antes de destruirlos si fueron alcanzados.
+
+### 3. Bomba de Color (Match-5+)
+* **Generación:** Se crea al lograr una coincidencia de 5 o más baldosas.
+* **Efecto:** Al detonarse, rastrea el tablero y destruye absolutamente todas las baldosas que compartan su color. Si la explosión de esta bomba alcanza a un "Limpia-Líneas" u otro Power-Up, estos también se activarán, generando reacciones en cadena masivas.

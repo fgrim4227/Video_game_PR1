@@ -38,7 +38,7 @@ class PlayState(BaseState):
 
         self.timer = settings.LEVEL_TIME
 
-        self.goal_score = self.level * 1.25 * 1000
+        self.goal_score = int(self.level * 1.3 * 1000)
 
         self.dragging = False
         self.dragging_tile = None
@@ -72,10 +72,11 @@ class PlayState(BaseState):
             self.text_alpha_surface, (56, 56, 56, 234), pygame.Rect(0, 0, 212, 136)
         )
         def decrement_timer():
-            self.timer -= 1
+            if not self.is_resetting:
+                self.timer -= 1
 
-            if self.timer <= 5:
-                settings.SOUNDS["clock"].play()
+                if self.timer <= 5:
+                    settings.SOUNDS["clock"].play()
 
         Timer.every(1, decrement_timer)
         self.hint_alpha_surface = pygame.Surface(
@@ -444,7 +445,8 @@ class PlayState(BaseState):
                         0.15,
                         [(self.dragging_tile, {"x": self.og_x, "y": self.og_y})]
                     )
+        '''            
         if input_id == "reset" and input_data.pressed:
             self.board.change_state()
-            print(self.board.test_case)
             self._reset_hint_timer()
+        '''

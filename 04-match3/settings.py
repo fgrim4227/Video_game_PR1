@@ -59,7 +59,7 @@ TEXTURES = {
 
 FRAMES = {"tiles": generate_tile_frames(TEXTURES["tiles"]),
           "power-ups": generate_frames(TEXTURES["power-ups"], TILE_SIZE, TILE_SIZE)}
-print(len(FRAMES["power-ups"]))
+
 SOUNDS = {
     "clock": pygame.mixer.Sound(BASE_DIR / "assets" / "sounds" / "clock.wav"),
     "error": pygame.mixer.Sound(BASE_DIR / "assets" / "sounds" / "error.wav"),

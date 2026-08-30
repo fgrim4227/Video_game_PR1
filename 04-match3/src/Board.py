@@ -32,7 +32,8 @@ class Board:
             0: self._generate_normal,
             1: self._generate_case_1,
             2: self._generate_case_2,
-            3: self._generate_case_3
+            3: self._generate_case_3,
+            4: self._generate_case_4
         }
         self._initialize_tiles()
 
@@ -78,7 +79,7 @@ class Board:
     def change_state(self):
         self.matches = []
         self.tiles = []
-        self.test_case = (self.test_case + 1) % 4
+        self.test_case = (self.test_case + 1) % 5
         self.test_cases_funcs[self.test_case]()
 
     def _generate_normal(self) -> None:
@@ -96,6 +97,14 @@ class Board:
         self.tiles[0][1].color = 0
         self.tiles[0][2].color = 1
         self.tiles[1][2].color = 0
+        self.tiles[0][3].color = 0
+
+        self.tiles[3][3].color = 5
+        self.tiles[3][4].color = 5
+        self.tiles[2][5].color = 5
+        self.tiles[3][5].color = 0
+        self.tiles[3][6].color = 5
+        self.tiles[3][7].color = 5
 
     def _generate_case_2(self) -> None:
         self._generate_normal()
@@ -116,8 +125,30 @@ class Board:
                     color = 2 if j % 2 == 0 else 3
                 self.tiles[i][j] = Tile(i, j, color, 0)
 
+        self.tiles[0][0].color = 6
+        self.tiles[0][1].color = 6
+        self.tiles[0][2].color = 7 
+        self.tiles[1][2].color = 6 
+
         self.tiles[2][2] = Powerup(2, 2, 4, 0, 4)
         self.tiles[5][5] = Powerup(5, 5, 5, 0, 5)
+    def _generate_case_4(self) -> None:
+        self._generate_normal()
+        from src.PowerUp import Powerup
+
+        trigger_color = 3
+
+        self.tiles[3][3] = Powerup(3, 3, trigger_color, 0, 5)
+
+        self.tiles[1][1] = Powerup(1, 1, trigger_color, 0, 4)
+        self.tiles[1][6] = Powerup(1, 6, trigger_color, 0, 4)
+        self.tiles[6][1] = Powerup(6, 1, trigger_color, 0, 4)
+        self.tiles[6][6] = Powerup(6, 6, trigger_color, 0, 4)
+
+        self.tiles[1][3] = Powerup(1, 3, 1, 0, 4)
+        self.tiles[6][3] = Powerup(6, 3, 2, 0, 4)
+        self.tiles[3][1] = Powerup(3, 1, 4, 0, 4)
+        self.tiles[3][6] = Powerup(3, 6, 0, 0, 4)
     def get_possible_move(self) -> Optional[Tuple[int, int]]:
         for i in range(settings.BOARD_HEIGHT):
             for j in range(settings.BOARD_WIDTH):
