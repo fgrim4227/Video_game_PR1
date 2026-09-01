@@ -70,6 +70,7 @@ TEXTURES = {
     "tiles": pygame.image.load(BASE_DIR / "assets" / "graphics" / "tileset.png"),
     "martian": pygame.image.load(BASE_DIR / "assets" / "graphics" / "martian.png"),
     "creatures": pygame.image.load(BASE_DIR / "assets" / "graphics" / "creatures.png"),
+    "evil_snail": pygame.image.load(BASE_DIR / "assets" / "graphics" / "evil_snail.png"),
 }
 
 FRAMES = {
@@ -85,6 +86,11 @@ SOUNDS = {
     "jump": pygame.mixer.Sound(BASE_DIR / "assets" / "sounds" / "jump.wav"),
     "timer": pygame.mixer.Sound(BASE_DIR / "assets" / "sounds" / "timer.wav"),
     "count": pygame.mixer.Sound(BASE_DIR / "assets" / "sounds" / "count.wav"),
+    "hit_block": pygame.mixer.Sound(BASE_DIR / "assets" / "sounds" / "hit_block.mp3"),
+    "key_obtain": pygame.mixer.Sound(BASE_DIR / "assets" / "sounds" / "key_obtain.mp3"),
+    "victory": pygame.mixer.Sound(BASE_DIR / "assets" / "sounds" / "victory_music.mp3"),
+    "game_over": pygame.mixer.Sound(BASE_DIR / "assets" / "sounds" / "game_over.mp3"),
+    "loose_life": pygame.mixer.Sound(BASE_DIR / "assets" / "sounds" / "loose_life.mp3"),
 }
 
 SOUNDS["pickup_coin"].set_volume(0.5)

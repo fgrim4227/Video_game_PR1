@@ -13,6 +13,8 @@ from typing import TypeVar, Dict, Any, Tuple
 from gale.state import StateMachine, BaseState
 from gale.tilemap import move_and_collide
 
+import pygame
+from typing import Optional
 import settings
 from src import mixins
 
@@ -90,3 +92,18 @@ class GameEntity(mixins.DrawableMixin, mixins.AnimatedMixin, mixins.CollidableMi
             self.x = 0
         elif self.x + self.width > self.tilemap.pixel_width:
             self.x = self.tilemap.pixel_width - self.width
+    def get_intersection(self, r1: pygame.Rect, r2: pygame.Rect) -> Optional[Tuple[int, int]]:
+        if r1.x > r2.right or r1.right < r2.x or r1.bottom < r2.y or r1.y > r2.bottom:
+            return None
+
+        if r1.centerx < r2.centerx:
+            x_shift = r2.x - r1.right
+        else:
+            x_shift = r2.right - r1.x
+
+        if r1.centery < r2.centery:
+            y_shift = r2.y - r1.bottom
+        else:
+            y_shift = r2.bottom - r1.y
+
+        return (x_shift, y_shift)

@@ -12,7 +12,10 @@ This file contains the class Clock.
 class Clock:
     def __init__(self, time: int) -> None:
         self.time = time
+        self.paused = False
 
+    def pause_and_unpause(self):
+        self.paused = not self.paused
     def count_up(self) -> None:
         self.time += 1
 

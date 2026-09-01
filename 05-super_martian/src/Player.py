@@ -57,5 +57,8 @@ class Player(GameEntity):
         )
         self.command_bindings.bind("jump", press=JUMP, release=STOP_JUMP)
 
+        self.lives = 3
+    def change_lives(self, change):
+        self.lives += change
     def on_input(self, input_id: str, input_data: InputData) -> None:
         self.command_bindings.dispatch(self, input_id, input_data)

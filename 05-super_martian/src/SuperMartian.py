@@ -23,8 +23,11 @@ class SuperMartian(Game):
             {
                 "start": game_states.StartState,
                 "play": game_states.PlayState,
+                "dead_screen": game_states.DeadScreenState,
                 "game_over": game_states.GameOverState,
                 "pause": game_states.PauseState,
+                "victory": game_states.VictoryState,
+                "game_over_transition": game_states.GameOverTransitionState,
             }
         )
         self.state_machine.change("start")

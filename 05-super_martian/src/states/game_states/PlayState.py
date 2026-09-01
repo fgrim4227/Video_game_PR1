@@ -22,7 +22,7 @@ import settings
 from src.Clock import Clock
 from src.GameLevel import GameLevel
 from src.Player import Player
-
+from src.FlyingCreature import FlyingCreature
 
 class PlayState(BaseState):
     def enter(self, **enter_params: Dict[str, Any]) -> None:
@@ -30,7 +30,7 @@ class PlayState(BaseState):
         self.game_level = enter_params.get("game_level")
         if self.game_level is None:
             #self.game_level
-            self.game_level = GameLevel(2)
+            self.game_level = GameLevel(self.level)
             pygame.mixer.music.load(
                 settings.BASE_DIR / "assets" / "sounds" / "music_grassland.ogg"
             )
@@ -48,6 +48,8 @@ class PlayState(BaseState):
             self.player = Player(0, spawn_y, self.game_level)
             self.player.change_state("idle")
 
+        self.player.lives = enter_params.get("lives", 3)
+
         self.camera = enter_params.get("camera")
 
         if self.camera is None:
@@ -63,7 +65,8 @@ class PlayState(BaseState):
             self.clock = Clock(300)
 
             def countdown_timer():
-                self.clock.count_down()
+                if not (self.clock.paused):
+                    self.clock.count_down()
 
                 if 0 < self.clock.time <= 5:
                     settings.SOUNDS["timer"].play()
@@ -80,7 +83,7 @@ class PlayState(BaseState):
             pygame.mixer.music.stop()
             pygame.mixer.music.unload()
             Timer.clear()
-            self.state_machine.change("game_over", self.player)
+            self.state_machine.change("dead_screen", player=self.player, level=self.level)
 
 
         TARGET_SCORE = 100 
@@ -91,13 +94,10 @@ class PlayState(BaseState):
                 block_rect = pygame.Rect(block["x"], block["y"], block["width"], block["height"] + 10)
                 if player_rect.colliderect(block_rect):
                     if self.player.vy < 0:
-                        #self.player.y = block_rect.bottom
-                        #self.player.vy = 0
                         if self.player.score >= TARGET_SCORE:
                             block["hit"] = True
-                            #Buscar otro sonido
-                            settings.SOUNDS["jump"].play()
-                            self._spawn_key(block["x"], block["y"] - 16)
+                            settings.SOUNDS["hit_block"].play()
+                            self._spawn_key(block["x"], block["y"] - 4)
 
         self.player.update(dt)
 
@@ -109,8 +109,26 @@ class PlayState(BaseState):
 
         for creature in self.game_level.creatures:
             if self.player.collides(creature):
-                self.player.change_state("dead")
+                pr = self.player.get_collision_rect()
+                cr = creature.get_collision_rect()  
+                intersection = self.player.get_intersection(pr, cr)
 
+                if intersection is not None:
+                    shift_x, shift_y = intersection
+                    min_shift = min(abs(shift_x), abs(shift_y - 8)) 
+                    if min_shift == (abs(shift_y - 8)) and self.player.vy > 0 and pr.bottom <= cr.centery + 8:
+                        #Insertar sonito stump
+                        settings.SOUNDS["jump"].play()
+
+                        self.player.vy = -settings.JUMP_TAKEOFF_SPEED / 1.5
+                        self.player.score += 50
+                        if isinstance(creature, FlyingCreature):
+                            creature.change_state("fall")
+                        else:
+                            creature.change_state("dead")
+                    else:
+                        if not (creature.is_dead):
+                            self.player.change_state("dead")
         for item in self.game_level.items:
             if not item.active or not item.collidable:
                 continue
@@ -137,7 +155,7 @@ class PlayState(BaseState):
             surface,
             f"Time: {self.clock.time}",
             settings.FONTS["small"],
-            settings.VIRTUAL_WIDTH - 60,
+            settings.VIRTUAL_WIDTH - 80,
             5,
             (255, 255, 255),
             shadowed=True,
@@ -172,23 +190,16 @@ class PlayState(BaseState):
                 on_consume=self._win_level
             )
             Timer.tween(
-                0.5, 
-                [(key, {"y": y - 20})], 
-                ease_function_name="out_cubic"
+                1.5, 
+                [(key, {"y": y - 16})], 
+                ease_function_name= "linear"
             )
             self.game_level.items.append(key)
 
     def _win_level(self, item, player):
-        from gale.timer import Timer
 
-        #Timer.pause() 
-
+        settings.SOUNDS["key_obtain"].play()
         for game_item in self.game_level.items:
             game_item.collidable = False
 
-        self.fade_alpha = 0
-        Timer.tween(
-            1.5, 
-            [(self, {"fade_alpha": 255})], 
-            on_finish=lambda: self.state_machine.change("start") 
-        )
+        self.state_machine.change("victory", game_level = self.game_level, player = self.player, camera = self.camera, clock = self.clock )
