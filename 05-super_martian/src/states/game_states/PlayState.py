@@ -83,7 +83,7 @@ class PlayState(BaseState):
             pygame.mixer.music.stop()
             pygame.mixer.music.unload()
             Timer.clear()
-            self.state_machine.change("dead_screen", player=self.player, level=self.level)
+            self.state_machine.change("death_animation_state", player=self.player, level=self.level, game_level = self.game_level, camera = self.camera, last_time = self.clock.time, score = self.player.score)
 
 
         TARGET_SCORE = 100 
@@ -115,19 +115,20 @@ class PlayState(BaseState):
 
                 if intersection is not None:
                     shift_x, shift_y = intersection
-                    min_shift = min(abs(shift_x), abs(shift_y - 8)) 
-                    if min_shift == (abs(shift_y - 8)) and self.player.vy > 0 and pr.bottom <= cr.centery + 8:
+                    min_shift = min(abs(shift_x), abs(shift_y)) 
+                    if min_shift == (abs(shift_y)) and self.player.vy > 0:
                         #Insertar sonito stump
                         settings.SOUNDS["jump"].play()
 
                         self.player.vy = -settings.JUMP_TAKEOFF_SPEED / 1.5
                         self.player.score += 50
+                        creature.dying = True
                         if isinstance(creature, FlyingCreature):
                             creature.change_state("fall")
                         else:
                             creature.change_state("dead")
                     else:
-                        if not (creature.is_dead):
+                        if not getattr(creature, 'dying', False) and not (creature.is_dead):
                             self.player.change_state("dead")
         for item in self.game_level.items:
             if not item.active or not item.collidable:
@@ -185,7 +186,7 @@ class PlayState(BaseState):
             from gale.timer import Timer
             #Temporal
             key = GameItem(
-                x, y, 16, 16, "tiles", 61, 
+                x, y, 16, 16, "tiles", 68, 
                 collidable=True, consumable=True, 
                 on_consume=self._win_level
             )

@@ -19,7 +19,6 @@ import settings
 
 class GameOverState(BaseState):
     def enter(self, player) -> None:
-        settings.SOUNDS["game_over"].play()
         self.player = player
 
     def on_input(self, input_id: str, input_data: InputData) -> None:

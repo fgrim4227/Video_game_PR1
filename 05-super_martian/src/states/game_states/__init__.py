@@ -15,4 +15,5 @@ from src.states.game_states.StartState import StartState
 from src.states.game_states.VictoryState import VictoryState
 from src.states.game_states.DeadScreenState import DeadScreenState
 from src.states.game_states.GameOverTransitionState import GameOverTransitionState
-(GameOverState, PauseState, PlayState, StartState, VictoryState, GameOverTransitionState)
+from src.states.game_states.DeathAnimationState import DeathAnimationState
+(GameOverState, PauseState, PlayState, StartState, VictoryState, GameOverTransitionState, DeathAnimationState)

@@ -17,7 +17,6 @@ class DeadScreenState(BaseState):
 
         pygame.mixer.music.stop()
 
-        settings.SOUNDS["loose_life"].play()
 
         print(self.player.lives)
         Timer.after(2.5, self._transition)
