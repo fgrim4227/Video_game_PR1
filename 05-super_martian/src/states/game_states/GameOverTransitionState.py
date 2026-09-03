@@ -10,15 +10,12 @@ import settings
 class GameOverTransitionState(BaseState):
     def enter(self, **enter_params) -> None:
         self.player = enter_params["player"]
-        
-        settings.SOUNDS["game_over"].play()
-        
-        self.snail_alpha = 0
+        self.fade_alpha = 0
         self.can_continue = False
         
         Timer.tween(
-            3.0, 
-            [(self, {"snail_alpha": 255})], 
+            3.5, 
+            [(self, {"fade_alpha": 255})], 
             ease_function_name="linear",
             on_finish=lambda: setattr(self, 'can_continue', True)
         )
@@ -28,16 +25,15 @@ class GameOverTransitionState(BaseState):
 
     def render(self, surface: pygame.Surface) -> None:
         surface.fill((0, 0, 0))
-        
-        snail_img = settings.TEXTURES["evil_snail"].copy()
-        snail_img.set_alpha(int(self.snail_alpha))
-        
+
+        content_surface = pygame.Surface((settings.VIRTUAL_WIDTH, settings.VIRTUAL_HEIGHT))
+        content_surface.fill((0, 0, 0))
+        snail_img = settings.TEXTURES["evil_snail"]
         img_x = settings.VIRTUAL_WIDTH // 2 - snail_img.get_width() // 2
         img_y = settings.VIRTUAL_HEIGHT // 2 - snail_img.get_height() // 2 + 10
-        surface.blit(snail_img, (img_x, img_y))
-
+        content_surface.blit(snail_img, (img_x, img_y))
         render_text(
-            surface,
+            content_surface,
             "GAME OVER",
             settings.FONTS["medium"],
             settings.VIRTUAL_WIDTH // 2,
@@ -46,6 +42,8 @@ class GameOverTransitionState(BaseState):
             center=True,
             shadowed=True,
         )
+        content_surface.set_alpha(int(self.fade_alpha))
+        surface.blit(content_surface, (0, 0))
         if self.can_continue:
             render_text(
                 surface,

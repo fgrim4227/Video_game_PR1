@@ -26,16 +26,17 @@ from src.FlyingCreature import FlyingCreature
 
 class PlayState(BaseState):
     def enter(self, **enter_params: Dict[str, Any]) -> None:
+        self.active = False
+
+        self.fade_alpha = 255
         self.level = enter_params.get("level", 1)
         self.game_level = enter_params.get("game_level")
         if self.game_level is None:
-            #self.game_level
             self.game_level = GameLevel(self.level)
             pygame.mixer.music.load(
                 settings.BASE_DIR / "assets" / "sounds" / "music_grassland.ogg"
             )
             pygame.mixer.music.play(loops=-1)
-            pygame.mixer.music.set_volume(0)
         self.tilemap = self.game_level.tilemap
         self.player = enter_params.get("player")
         if self.player is None:
@@ -62,7 +63,7 @@ class PlayState(BaseState):
         self.clock = enter_params.get("clock")
 
         if self.clock is None:
-            self.clock = Clock(300)
+            self.clock = Clock(180)
 
             def countdown_timer():
                 if not (self.clock.paused):
@@ -77,74 +78,90 @@ class PlayState(BaseState):
             Timer.every(1, countdown_timer)
         else:
             Timer.resume()
+        self.clock.paused = True
+        self.TARGET_SCORE = 300 + (300 * 0.2 * self.level)
 
+        Timer.tween(3, [(self, {"fade_alpha": 0})], on_finish=self.activate)
+
+    def activate(self):
+        self.active = True
+        self.clock.paused = False
     def update(self, dt: float) -> None:
-        if self.player.is_dead:
-            pygame.mixer.music.stop()
-            pygame.mixer.music.unload()
-            Timer.clear()
-            self.state_machine.change("death_animation_state", player=self.player, level=self.level, game_level = self.game_level, camera = self.camera, last_time = self.clock.time, score = self.player.score)
+        if(self.active):   
+            if self.player.is_dead:          
+                pygame.mixer.music.stop()           
+                pygame.mixer.music.unload()          
+                Timer.clear()          
+                self.state_machine.change("death_animation_state", player=self.player, level=self.level, game_level = self.game_level, camera = self.camera, last_time = self.clock.time, score = self.player.score)           
 
+            player_rect = self.player.get_collision_rect()          
+            for block in self.game_level.special_blocks:           
+                if not block["hit"]:           
+                    block_rect = pygame.Rect(block["x"], block["y"], block["width"], block["height"] + 10)           
+                    if player_rect.colliderect(block_rect):           
+                        if self.player.vy < 0:          
+                            if self.player.score >= self.TARGET_SCORE:          
+                                block["hit"] = True          
+                                settings.SOUNDS["hit_block"].play()           
+                                self._spawn_key(block["x"], block["y"] - 4)           
+            self.player.update(dt)
+         
+            if self.player.y >= self.tilemap.pixel_height:           
+                self.player.change_state("dead")      
 
-        TARGET_SCORE = 100 
-        player_rect = self.player.get_collision_rect()
-
-        for block in self.game_level.special_blocks:
-            if not block["hit"]:
-                block_rect = pygame.Rect(block["x"], block["y"], block["width"], block["height"] + 10)
-                if player_rect.colliderect(block_rect):
-                    if self.player.vy < 0:
-                        if self.player.score >= TARGET_SCORE:
-                            block["hit"] = True
-                            settings.SOUNDS["hit_block"].play()
-                            self._spawn_key(block["x"], block["y"] - 4)
-
-        self.player.update(dt)
-
-        if self.player.y >= self.tilemap.pixel_height:
-            self.player.change_state("dead")
-
-        self.camera.update(dt)
-        self.game_level.update(dt)
-
-        for creature in self.game_level.creatures:
-            if self.player.collides(creature):
-                pr = self.player.get_collision_rect()
-                cr = creature.get_collision_rect()  
-                intersection = self.player.get_intersection(pr, cr)
-
-                if intersection is not None:
-                    shift_x, shift_y = intersection
-                    min_shift = min(abs(shift_x), abs(shift_y)) 
-                    if min_shift == (abs(shift_y)) and self.player.vy > 0:
-                        #Insertar sonito stump
-                        settings.SOUNDS["jump"].play()
-
-                        self.player.vy = -settings.JUMP_TAKEOFF_SPEED / 1.5
-                        self.player.score += 50
-                        creature.dying = True
-                        if isinstance(creature, FlyingCreature):
-                            creature.change_state("fall")
-                        else:
-                            creature.change_state("dead")
-                    else:
-                        if not getattr(creature, 'dying', False) and not (creature.is_dead):
-                            self.player.change_state("dead")
-        for item in self.game_level.items:
-            if not item.active or not item.collidable:
-                continue
-
-            if self.player.collides(item):
-                item.on_collide(self.player)
-                item.on_consume(self.player)
+            self.camera.update(dt)          
+            self.game_level.update(dt)
+          
+            for creature in self.game_level.creatures:          
+                if self.player.collides(creature):          
+                    pr = self.player.get_collision_rect()          
+                    cr = creature.get_collision_rect()            
+                    intersection = self.player.get_intersection(pr, cr)          
+                    if intersection is not None:          
+                        shift_x, shift_y = intersection          
+                        min_shift = min(abs(shift_x), abs(shift_y))           
+                        if min_shift == (abs(shift_y)) and self.player.vy > 0:          
+                            settings.SOUNDS["jump"].play()          
+                            if self.player.jump_held:          
+                                self.player.vy = -settings.JUMP_TAKEOFF_SPEED          
+                            else:       
+                                self.player.vy = -settings.JUMP_TAKEOFF_SPEED + 0.5 * settings.JUMP_TAKEOFF_SPEED            
+                            if not getattr(creature, 'is_dying', False):            
+                                creature.is_dying = True
+                                if isinstance(creature, FlyingCreature):           
+                                    creature.change_state("fall")
+                                    self.player.score += 50          
+                                else:           
+                                    creature.change_state("dead", flipped=creature.flipped)   
+                                    self.player.score += 20        
+                            else:          
+                                self.player.score += 5           
+                        else:           
+                            if not getattr(creature, 'is_dying', False) and not (creature.is_dead):           
+                                self.player.change_state("dead")
+            
+            for item in self.game_level.items:           
+                if not item.active or not item.collidable:            
+                    continue           
+                if self.player.collides(item):           
+                    item.on_collide(self.player)           
+                    item.on_consume(self.player)
 
     def render(self, surface: pygame.Surface) -> None:
         self.game_level.render(surface, self.camera)
+        for block in self.game_level.special_blocks:
+            if block["hit"]:
+                empty_block_img = settings.FRAMES["tiles"][69] 
+
+                rect = self.camera.apply(pygame.Rect(block["x"], block["y"], block["width"], block["height"]))
+                
+                surface.blit(settings.TEXTURES["tiles"], (rect.x, rect.y), empty_block_img)
+
         self.player.render(surface, self.camera)
 
         render_text(
             surface,
-            f"Score: {self.player.score}",
+            f"Score: {self.player.score} / {int(self.TARGET_SCORE)}",
             settings.FONTS["small"],
             5,
             5,
@@ -184,7 +201,6 @@ class PlayState(BaseState):
     def _spawn_key(self, x, y):
             from src.GameItem import GameItem
             from gale.timer import Timer
-            #Temporal
             key = GameItem(
                 x, y, 16, 16, "tiles", 68, 
                 collidable=True, consumable=True, 
@@ -203,4 +219,4 @@ class PlayState(BaseState):
         for game_item in self.game_level.items:
             game_item.collidable = False
 
-        self.state_machine.change("victory", game_level = self.game_level, player = self.player, camera = self.camera, clock = self.clock )
+        self.state_machine.change("victory", game_level = self.game_level, player = self.player, camera = self.camera, clock = self.clock, level=self.level )

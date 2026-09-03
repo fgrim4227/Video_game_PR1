@@ -28,6 +28,7 @@ class VictoryState(BaseState):
     def enter(self, **enter_params: Dict[str, Any]) -> None:
         self.level = enter_params.get("level", 1)
         self.game_level = enter_params.get("game_level")
+        pygame.mixer.music.stop()
         settings.SOUNDS["victory"].play()
         self.tilemap = self.game_level.tilemap
         self.player = enter_params.get("player")
@@ -42,17 +43,32 @@ class VictoryState(BaseState):
         
         self.fade_alpha = 0
         Timer.tween(
-            10, 
+            6.8, 
             [(self, {"fade_alpha": 255})], 
-            on_finish=lambda: self.state_machine.change("play", level = self.level + 1) 
+            on_finish= self._go_to_next
         )
 
-
+    def _go_to_next(self):
+        if self.level < settings.NUM_LEVELS:
+            pygame.mixer.music.load(
+                                        settings.BASE_DIR / "assets" / "sounds" / "music_grassland.ogg"
+                                    )
+            pygame.mixer.music.play(loops=-1)
+            self.state_machine.change("play", level=self.level + 1)
+        else:
+            self.state_machine.change("game_completed_state", player=self.player)
     def update(self, dt: float) -> None:
         pass
 
     def render(self, surface: pygame.Surface) -> None:
         self.game_level.render(surface, self.camera)
+        for block in self.game_level.special_blocks:
+            if block["hit"]:
+                empty_block_img = settings.FRAMES["tiles"][69] 
+
+                rect = self.camera.apply(pygame.Rect(block["x"], block["y"], block["width"], block["height"]))
+                
+                surface.blit(settings.TEXTURES["tiles"], (rect.x, rect.y), empty_block_img)
         self.player.render(surface, self.camera)
 
         render_text(
@@ -81,46 +97,4 @@ class VictoryState(BaseState):
             surface.blit(fade_surface, (0, 0))
 
     def on_input(self, input_id: str, input_data: InputData) -> None:
-        if input_id == "pause" and input_data.pressed:
-            Timer.pause()
-            self.state_machine.change(
-                "pause",
-                level=self.level,
-                camera=self.camera,
-                game_level=self.game_level,
-                player=self.player,
-                clock=self.clock,
-            )
-        else:
-            self.player.on_input(input_id, input_data)
-
-    def _spawn_key(self, x, y):
-            from src.GameItem import GameItem
-            from gale.timer import Timer
-            #Temporal
-            key = GameItem(
-                x, y, 16, 16, "tiles", 61, 
-                collidable=True, consumable=True, 
-                on_consume=self._win_level
-            )
-            Timer.tween(
-                1.5, 
-                [(key, {"y": y - 10})], 
-                ease_function_name= "linear"
-            )
-            self.game_level.items.append(key)
-
-    def _win_level(self, item, player):
-        from gale.timer import Timer
-        settings.SOUNDS["victory"].play()
-        self.clock.pause_and_unpause()
-
-        for game_item in self.game_level.items:
-            game_item.collidable = False
-
-        self.fade_alpha = 0
-        Timer.tween(
-            1.5, 
-            [(self, {"fade_alpha": 255})], 
-            on_finish=lambda: self.state_machine.change("start") 
-        )
+        pass

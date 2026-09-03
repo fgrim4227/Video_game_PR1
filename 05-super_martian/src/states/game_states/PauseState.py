@@ -50,7 +50,7 @@ class PauseState(BaseState):
             surface,
             f"Time: {self.clock.time}",
             settings.FONTS["small"],
-            settings.VIRTUAL_WIDTH - 60,
+            settings.VIRTUAL_WIDTH - 80,
             5,
             (255, 255, 255),
             shadowed=True,

@@ -14,18 +14,28 @@ class DeadScreenState(BaseState):
         self.level = enter_params.get("level", 1)
 
         self.player.change_lives(-1)
+        self.alpha_screen = 0
 
-        pygame.mixer.music.stop()
+        Timer.after(1, self.fadeout)
 
-
-        print(self.player.lives)
-        Timer.after(2.5, self._transition)
-
+    def fadeout(self):
+        Timer.tween(1,
+                    [(self, 
+                        { 
+                            "alpha_screen": 255
+                        }
+        )],
+                    on_finish=self._transition)
     def _transition(self):
         if self.player.lives > 0:
             new_game_level = GameLevel(self.level)
+            pygame.mixer.music.load(
+                            settings.BASE_DIR / "assets" / "sounds" / "music_grassland.ogg"
+                        )
+            pygame.mixer.music.play(loops=-1)
             self.state_machine.change("play", level=self.level, game_level=new_game_level, player=None, lives = self.player.lives)
         else:
+           settings.SOUNDS["game_over"].play()
            self.state_machine.change("game_over_transition", player=self.player)
 
     def update(self, dt: float) -> None:
@@ -50,6 +60,10 @@ class DeadScreenState(BaseState):
             center=True,
             shadowed=True,
         )
-
+        if hasattr(self, 'alpha_screen') and self.alpha_screen >= 0:
+                    fade_surface = pygame.Surface((settings.VIRTUAL_WIDTH, settings.VIRTUAL_HEIGHT))
+                    fade_surface.fill((0, 0, 0))
+                    fade_surface.set_alpha(int(self.alpha_screen))
+                    surface.blit(fade_surface, (0, 0))
     def on_input(self, input_id: str, input_data: InputData) -> None:
         pass

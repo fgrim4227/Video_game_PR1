@@ -15,7 +15,7 @@ class DeathAnimationState(BaseState):
         settings.SOUNDS["loose_life"].play()
 
         self.player.frame_index = 4
-
+        self.fade_alpha = 0
         Timer.tween(
             0.5,
             [(self.player, {"y": self.player.y - 50})],
@@ -28,13 +28,18 @@ class DeathAnimationState(BaseState):
             1.0,
             [(self.player, {"y": settings.VIRTUAL_HEIGHT + 50})],
             ease_function_name="in_cubic",
+            on_finish= self.trasition_out       
+        )
+    def trasition_out(self):
+        Timer.tween(
+            1, 
+            [(self, {"fade_alpha": 255})],
             on_finish=lambda: self.state_machine.change(
                 "dead_screen", 
                 player=self.player, 
                 level=self.level
             )
         )
-
     def update(self, dt: float) -> None:
         pass
 
@@ -60,3 +65,8 @@ class DeathAnimationState(BaseState):
             (255, 255, 255),
             shadowed=True,
         )
+        if hasattr(self, 'fade_alpha') and self.fade_alpha > 0:
+            fade_surface = pygame.Surface((settings.VIRTUAL_WIDTH, settings.VIRTUAL_HEIGHT))
+            fade_surface.fill((0, 0, 0))
+            fade_surface.set_alpha(int(self.fade_alpha))
+            surface.blit(fade_surface, (0, 0))
